@@ -1,0 +1,82 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #050505;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* --- THE GLASS CARD --- */
+.glass-card {
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(12px); /* This creates the frosty effect */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  padding: 24px;
+  width: 320px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.route-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  position: relative;
+}
+
+/* The line between airports */
+.route-line {
+  flex-grow: 1;
+  height: 2px;
+  background: #333;
+  margin: 0 10px;
+  position: relative;
+}
+
+.route-plane {
+  position: absolute;
+  top: -6px;
+  left: 50%; /* Center the plane icon on the line */
+  transform: translateX(-50%);
+  color: #00ffcc;
+  font-size: 12px;
+}
+
+/* ... existing css ... */
+
+/* FIX: Removes thin lines between map tiles */
+.leaflet-container {
+  background: #111 !important; /* Matches CartoDB Dark Matter color */
+  outline: none !important;
+}
+
+/* FIX: Removes the focus outline when clicking the map */
+.leaflet-interactive {
+  outline: none;
+}
