@@ -114,7 +114,6 @@ export default function App() {
                 if (data.type === 'radar_update') {
                     setFlight(data.flight); // Sets to null if backend sends null
                     
-                    // --- THE FIX: ---
                     if (data.flight) {
                         setStatus("LIVE");
                     } else {
@@ -215,7 +214,12 @@ export default function App() {
                     /* STATE 3: FLIGHT DISPLAY */
                     <div style={{ width: '380px', padding: '25px', background: 'rgba(15,15,15,0.95)', borderRadius: '28px', border: '1px solid rgba(0,255,204,0.3)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                            <span style={{ fontSize: '1.8rem', fontWeight: '900' }}>{flight.callsign}</span>
+                            {/* UPDATED: Callsign + Airline Name Column */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <span style={{ fontSize: '1.8rem', fontWeight: '900', lineHeight: '1' }}>{flight.callsign}</span>
+                                <span style={{ fontSize: '0.8rem', color: '#00ffcc', marginTop: '5px' }}>{flight.airline}</span>
+                            </div>
+                            
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ color: '#00ffcc', fontWeight: 'bold' }}>{flight.dist} MI</div>
                                 <div style={{ fontSize: '0.6rem', color: '#666' }}>DISTANCE</div>
@@ -255,14 +259,33 @@ export default function App() {
 
                         {/* Timing Grid */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', margin: '20px 0', padding: '15px 0', borderTop: '1px solid #333', borderBottom: '1px solid #333', textAlign: 'center' }}>
-                            <div><div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_dep)}</div><div style={{ fontSize: '0.5rem', color: '#666' }}>EST. DEP</div></div>
+                            {/* DEPARTURE */}
+                            <div>
+                                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_dep)}</div>
+                                {flight.dep_delay ? (
+                                    <div style={{ fontSize: '0.5rem', color: '#ff4444', fontWeight: 'bold' }}>{flight.dep_delay}</div>
+                                ) : (
+                                    <div style={{ fontSize: '0.5rem', color: '#666' }}>EST. DEP</div>
+                                )}
+                            </div>
+                            
+                            {/* TIME LEFT */}
                             <div>
                                 <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>
                                     {timeLeftDisplay}
                                 </div>
                                 <div style={{ fontSize: '0.5rem', color: '#666' }}>TIME LEFT</div>
                             </div>
-                            <div><div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_arr)}</div><div style={{ fontSize: '0.5rem', color: '#666' }}>EST. ARR</div></div>
+                            
+                            {/* ARRIVAL - HIDDEN IF DELAYED */}
+                            <div>
+                                {flight.dep_delay ? (
+                                    <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>--:--</div>
+                                ) : (
+                                    <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_arr)}</div>
+                                )}
+                                <div style={{ fontSize: '0.5rem', color: '#666' }}>EST. ARR</div>
+                            </div>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
