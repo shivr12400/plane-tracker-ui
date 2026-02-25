@@ -5,6 +5,9 @@ import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+// --- IMPORT YOUR LOGO HERE ---
+import logoImg from './logo.png';
+
 // --- CONFIGURATION ---
 const WS_URL = "wss://5ny2oufcs1.execute-api.us-east-1.amazonaws.com/production/";
 const DEFAULT_LOC = { lat: 40.587787, lon: -74.333724 }; 
@@ -112,7 +115,7 @@ export default function App() {
             ws.current.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 if (data.type === 'radar_update') {
-                    setFlight(data.flight); // Sets to null if backend sends null
+                    setFlight(data.flight); 
                     
                     if (data.flight) {
                         setStatus("LIVE");
@@ -168,6 +171,10 @@ export default function App() {
                 {/* STATE 1: ASK FOR PERMISSION */}
                 {!userLocation ? (
                      <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '50px', borderRadius: '30px', backdropFilter: 'blur(10px)', border: '1px solid #333' }}>
+                        
+                        {/* BIGGER LOGO ON LANDING SCREEN */}
+                        <img src={logoImg} alt="Flight Radar Logo" style={{ width: '140px', marginBottom: '30px', borderRadius: '15px' }} />
+
                         <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '10px', fontWeight: '900', letterSpacing: '2px' }}>FLIGHT RADAR</h1>
                         <p style={{ color: '#888', marginBottom: '30px', fontSize: '0.8rem' }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
                         
@@ -204,6 +211,10 @@ export default function App() {
                 ) : !flight ? (
                     /* STATE 2: SCANNING / LOADING */
                     <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '40px', borderRadius: '30px', backdropFilter: 'blur(10px)' }}>
+                        
+                        {/* BIGGER PULSING LOGO ON LOADING SCREEN */}
+                        <img src={logoImg} alt="Scanning..." style={{ width: '100px', marginBottom: '1px', borderRadius: '10px', animation: 'pulse 1.5s infinite' }} />
+
                         <h2 style={{ color: '#00ffcc', animation: 'pulse 1.5s infinite' }}>{status}</h2>
                         <style>{`@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }`}</style>
                         <p style={{ color: '#666' }}>
@@ -213,13 +224,16 @@ export default function App() {
                 ) : (
                     /* STATE 3: FLIGHT DISPLAY */
                     <div style={{ width: '380px', padding: '25px', background: 'rgba(15,15,15,0.95)', borderRadius: '28px', border: '1px solid rgba(0,255,204,0.3)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                            {/* UPDATED: Callsign + Airline Name Column */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                            {/* Callsign + Airline Name Column */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                                 <span style={{ fontSize: '1.8rem', fontWeight: '900', lineHeight: '1' }}>{flight.callsign}</span>
                                 <span style={{ fontSize: '0.8rem', color: '#00ffcc', marginTop: '5px' }}>{flight.airline}</span>
                             </div>
                             
+                            {/* BIGGER LOGO IN THE LIVE DISPLAY */}
+                            <img src={logoImg} alt="Logo" style={{ width: '100px', borderRadius: '8px', marginBottom: '10px'}} />
+
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ color: '#00ffcc', fontWeight: 'bold' }}>{flight.dist} MI</div>
                                 <div style={{ fontSize: '0.6rem', color: '#666' }}>DISTANCE</div>
