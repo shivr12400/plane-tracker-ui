@@ -42,7 +42,7 @@ const formatTime = (isoStr) => {
     } catch { return "--:--"; }
 };
 
-const planeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="30px"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
+const planeSvgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="30px"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
 const homeSvg = `<svg viewBox="0 0 24 24" width="20px" height="20px"><circle cx="12" cy="12" r="8" fill="white" stroke="#00ffcc" stroke-width="3"/></svg>`;
 
 const tinyPlaneSvg = (
@@ -51,7 +51,7 @@ const tinyPlaneSvg = (
     </svg>
 );
 
-const createRotatedIcon = (rot) => L.divIcon({ html: `<div style="transform: rotate(${rot}deg)">${planeSvg}</div>`, className: '', iconSize: [30, 30] });
+const createRotatedIcon = (rot) => L.divIcon({ html: `<div style="transform: rotate(${rot}deg)">${planeSvgIcon}</div>`, className: '', iconSize: [30, 30] });
 const homeIcon = L.divIcon({ html: homeSvg, className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
 
 function MapBounds({ planeLat, planeLon, userLat, userLon }) {
@@ -170,12 +170,137 @@ export default function App() {
                 
                 {/* STATE 1: ASK FOR PERMISSION */}
                 {!userLocation ? (
-                     <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '50px', borderRadius: '30px', backdropFilter: 'blur(10px)', border: '1px solid #333' }}>
+                     <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '50px', borderRadius: '30px', backdropFilter: 'blur(10px)', border: '1px solid #333', maxWidth: '500px' }}>
                         
-                        {/* BIGGER LOGO ON LANDING SCREEN */}
-                        <img src={logoImg} alt="Flight Radar Logo" style={{ width: '140px', marginBottom: '30px', borderRadius: '15px' }} />
+                        {/* --- HORIZONTAL 3 SECOND TRANSITION ANIMATION STYLES --- */}
+                        <style>{`
+                            .visual-container {
+                                position: relative;
+                                width: 100%;
+                                height: 250px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                margin-bottom: 30px;
+                            }
+                            .anim-container {
+                                position: absolute;
+                                width: 100%;
+                                height: 100%;
+                                border-radius: 20px;
+                                background: linear-gradient(to bottom, rgba(0, 30, 50, 0.4), rgba(0, 0, 0, 0));
+                                overflow: hidden;
+                                /* Fades out smoothly after 3 seconds */
+                                animation: fadeOutScene 0.5s ease-in-out 3s forwards;
+                            }
+                            .logo-scene {
+                                position: absolute;
+                                max-width: 250px;
+                                max-height: 250px;
+                                border-radius: 20px;
+                                opacity: 0;
+                                transform: scale(0.8);
+                                /* Fades and pops in smoothly after 3 seconds */
+                                animation: popInLogo 0.8s cubic-bezier(0.25, 1, 0.5, 1) 3s forwards;
+                            }
 
-                        <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '10px', fontWeight: '900', letterSpacing: '2px' }}>FLIGHT RADAR</h1>
+                            .cloud {
+                                position: absolute;
+                                fill: #ffffff;
+                                opacity: 0.15;
+                            }
+                            .cloud-bg {
+                                width: 180px;
+                                top: 20%;
+                                /* Clouds drift RIGHT to LEFT */
+                                animation: driftLeft 8s linear infinite;
+                                z-index: 1;
+                            }
+                            .cloud-fg {
+                                width: 250px;
+                                top: 55%;
+                                opacity: 0.25;
+                                animation: driftLeft 5s linear infinite;
+                                z-index: 3;
+                                animation-delay: -2s;
+                            }
+                            .plane-wrapper {
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                width: 80px;
+                                height: 80px;
+                                margin-top: -40px;
+                                margin-left: -40px;
+                                z-index: 2;
+                                /* Plane flies in horizontally, then hovers up and down */
+                                animation: 
+                                    flyInHorizontal 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards,
+                                    hoverUpDown 4s ease-in-out 1.5s infinite;
+                            }
+                            .plane {
+                                width: 100%;
+                                height: 100%;
+                                fill: #00ffcc;
+                                filter: drop-shadow(0px 10px 10px rgba(0, 255, 204, 0.3));
+                                /* Rotated 90 degrees to point to the right */
+                                transform: rotate(90deg);
+                            }
+
+                            @keyframes fadeOutScene {
+                                to { opacity: 0; visibility: hidden; transform: scale(1.1); }
+                            }
+                            @keyframes popInLogo {
+                                to { opacity: 1; transform: scale(1); }
+                            }
+                            /* Cloud horizontal movement keyframes */
+                            @keyframes driftLeft {
+                                0% { transform: translateX(350px); }
+                                100% { transform: translateX(-350px); }
+                            }
+                            /* Plane horizontal entrance keyframes */
+                            @keyframes flyInHorizontal {
+                                0% { transform: translateX(-150px) scale(0.5); opacity: 0; }
+                                60% { transform: translateX(15px) scale(1.05); opacity: 1; }
+                                100% { transform: translateX(0) scale(1); opacity: 1; }
+                            }
+                            /* Subtle up/down hover effect once stationary */
+                            @keyframes hoverUpDown {
+                                0% { transform: translateY(0px) scale(1); }
+                                50% { transform: translateY(-8px) scale(1); }
+                                100% { transform: translateY(0px) scale(1); }
+                            }
+                        `}</style>
+
+                        {/* --- THE VISUAL AREA (HOLDS BOTH ANIMATION & LOGO) --- */}
+                        <div className="visual-container">
+                            
+                            {/* 1. INTRO ANIMATION (Disappears after 3s) */}
+                            <div className="anim-container">
+                                {/* Background Cloud */}
+                                <svg className="cloud cloud-bg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.5 19c2.48 0 4.5-2.02 4.5-4.5S19.98 10 17.5 10c-.17 0-.34.02-.51.05C16.23 7.15 13.82 5 11 5 7.69 5 5 7.69 5 11c0 .18.01.35.04.52C2.75 11.96 1 13.78 1 16c0 2.21 1.79 4 4 4h12.5z"/>
+                                </svg>
+
+                                {/* The Plane (Smaller & Facing Right) */}
+                                <div className="plane-wrapper">
+                                    <svg className="plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                                    </svg>
+                                </div>
+
+                                {/* Foreground Cloud */}
+                                <svg className="cloud cloud-fg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                                </svg>
+                            </div>
+
+                            {/* 2. THE FINAL LOGO (Appears after 3s) */}
+                            <img src={logoImg} alt="Flight Radar Logo" className="logo-scene" />
+
+                        </div>
+
+                        <h1 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '10px', fontWeight: '900', letterSpacing: '2px' }}>FLIGHT RADAR</h1>
                         <p style={{ color: '#888', marginBottom: '30px', fontSize: '0.8rem' }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
                         
                         <button 
@@ -213,7 +338,7 @@ export default function App() {
                     <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '40px', borderRadius: '30px', backdropFilter: 'blur(10px)' }}>
                         
                         {/* BIGGER PULSING LOGO ON LOADING SCREEN */}
-                        <img src={logoImg} alt="Scanning..." style={{ width: '100px', marginBottom: '1px', borderRadius: '10px', animation: 'pulse 1.5s infinite' }} />
+                        <img src={logoImg} alt="Scanning..." style={{ width: '200px', marginBottom: '1px', borderRadius: '15px', animation: 'pulse 1.5s infinite' }} />
 
                         <h2 style={{ color: '#00ffcc', animation: 'pulse 1.5s infinite' }}>{status}</h2>
                         <style>{`@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }`}</style>
@@ -231,8 +356,8 @@ export default function App() {
                                 <span style={{ fontSize: '0.8rem', color: '#00ffcc', marginTop: '5px' }}>{flight.airline}</span>
                             </div>
                             
-                            {/* BIGGER LOGO IN THE LIVE DISPLAY */}
-                            <img src={logoImg} alt="Logo" style={{ width: '100px', borderRadius: '8px', marginBottom: '10px'}} />
+                            {/* YOUR ORIGINAL LOGO IN THE LIVE DISPLAY */}
+                            <img src={logoImg} alt="Logo" style={{ width: '180px', borderRadius: '12px', marginBottom: '10px'}} />
 
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ color: '#00ffcc', fontWeight: 'bold' }}>{flight.dist} MI</div>
