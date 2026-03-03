@@ -170,18 +170,18 @@ export default function App() {
                 
                 {/* STATE 1: ASK FOR PERMISSION */}
                 {!userLocation ? (
-                     <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '50px', borderRadius: '30px', backdropFilter: 'blur(10px)', border: '1px solid #333', maxWidth: '500px' }}>
+                     <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '40px 20px', borderRadius: '30px', backdropFilter: 'blur(10px)', border: '1px solid #333', maxWidth: '420px', width: '94%', boxSizing: 'border-box' }}>
                         
                         {/* --- HORIZONTAL 3 SECOND TRANSITION ANIMATION STYLES --- */}
                         <style>{`
                             .visual-container {
                                 position: relative;
                                 width: 100%;
-                                height: 250px;
+                                height: 200px;
                                 display: flex;
                                 justify-content: center;
                                 align-items: center;
-                                margin-bottom: 30px;
+                                margin-bottom: 25px;
                             }
                             .anim-container {
                                 position: absolute;
@@ -195,9 +195,9 @@ export default function App() {
                             }
                             .logo-scene {
                                 position: absolute;
-                                max-width: 250px;
-                                max-height: 250px;
-                                border-radius: 20px;
+                                width: 180px;
+                                height: auto;
+                                border-radius: 18px;
                                 opacity: 0;
                                 transform: scale(0.8);
                                 /* Fades and pops in smoothly after 3 seconds */
@@ -300,8 +300,8 @@ export default function App() {
 
                         </div>
 
-                        <h1 style={{ color: '#fff', fontSize: '2.5rem', marginBottom: '10px', fontWeight: '900', letterSpacing: '2px' }}>FLIGHT RADAR</h1>
-                        <p style={{ color: '#888', marginBottom: '30px', fontSize: '0.8rem' }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
+                        <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '10px', fontWeight: '900', letterSpacing: '2px' }}>FLIGHT RADAR</h1>
+                        <p style={{ color: '#888', marginBottom: '30px', fontSize: '0.75rem' }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
                         
                         <button 
                             onClick={requestLocation}
@@ -335,12 +335,12 @@ export default function App() {
                     </div>
                 ) : !flight ? (
                     /* STATE 2: SCANNING / LOADING */
-                    <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '40px', borderRadius: '30px', backdropFilter: 'blur(10px)' }}>
+                    <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.6)', padding: '40px 20px', borderRadius: '30px', backdropFilter: 'blur(10px)', maxWidth: '420px', width: '94%', boxSizing: 'border-box' }}>
                         
                         {/* BIGGER PULSING LOGO ON LOADING SCREEN */}
-                        <img src={logoImg} alt="Scanning..." style={{ width: '200px', marginBottom: '1px', borderRadius: '15px', animation: 'pulse 1.5s infinite' }} />
+                        <img src={logoImg} alt="Scanning..." style={{ width: '160px', maxWidth: '70%', marginBottom: '1px', borderRadius: '18px', animation: 'pulse 1.5s infinite' }} />
 
-                        <h2 style={{ color: '#00ffcc', animation: 'pulse 1.5s infinite' }}>{status}</h2>
+                        <h2 style={{ color: '#00ffcc', fontSize: '1.6rem', animation: 'pulse 1.5s infinite' }}>{status}</h2>
                         <style>{`@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }`}</style>
                         <p style={{ color: '#666' }}>
                             {userLocation ? `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}` : "Initializing..."}
@@ -348,19 +348,19 @@ export default function App() {
                     </div>
                 ) : (
                     /* STATE 3: FLIGHT DISPLAY */
-                    <div style={{ width: '380px', padding: '25px', background: 'rgba(15,15,15,0.95)', borderRadius: '28px', border: '1px solid rgba(0,255,204,0.3)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                    <div style={{ maxWidth: '420px', width: '94%', padding: '25px', background: 'rgba(15,15,15,0.95)', borderRadius: '28px', border: '1px solid rgba(0,255,204,0.3)', boxSizing: 'border-box' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center', gap: '10px' }}>
                             {/* Callsign + Airline Name Column */}
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1 }}>
                                 <span style={{ fontSize: '1.8rem', fontWeight: '900', lineHeight: '1' }}>{flight.callsign}</span>
                                 <span style={{ fontSize: '0.8rem', color: '#00ffcc', marginTop: '5px' }}>{flight.airline}</span>
                             </div>
                             
                             {/* YOUR ORIGINAL LOGO IN THE LIVE DISPLAY */}
-                            <img src={logoImg} alt="Logo" style={{ width: '180px', borderRadius: '12px', marginBottom: '10px'}} />
+                            <img src={logoImg} alt="Logo" style={{ width: '110px', borderRadius: '10px' }} />
 
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ color: '#00ffcc', fontWeight: 'bold' }}>{flight.dist} MI</div>
+                                <div style={{ color: '#00ffcc', fontWeight: 'bold', fontSize: '1rem' }}>{flight.dist} MI</div>
                                 <div style={{ fontSize: '0.6rem', color: '#666' }}>DISTANCE</div>
                             </div>
                         </div>
@@ -371,13 +371,13 @@ export default function App() {
                         </div>
 
                         {/* --- VISUAL FLIGHT PROGRESS BAR --- */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '20px 0 10px 0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '15px 0 10px 0' }}>
                             <div style={{ textAlign: 'left' }}>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{flight.origin}</div>
-                                <div style={{ fontSize: '0.6rem', color: '#666' }}>ORIGIN</div>
+                                <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{flight.origin}</div>
+                                <div style={{ fontSize: '0.55rem', color: '#666' }}>ORIGIN</div>
                             </div>
 
-                            <div style={{ flex: 1, margin: '0 15px', position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
+                            <div style={{ flex: 1, margin: '0 10px', position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
                                 <div style={{ position: 'absolute', width: '100%', height: '2px', background: '#333' }}></div>
                                 <div style={{ position: 'absolute', width: `${progress}%`, height: '2px', background: '#00ffcc', opacity: 0.5 }}></div>
                                 <div style={{ 
@@ -391,45 +391,45 @@ export default function App() {
                             </div>
 
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{flight.dest}</div>
-                                <div style={{ fontSize: '0.6rem', color: '#666' }}>DESTINATION</div>
+                                <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{flight.dest}</div>
+                                <div style={{ fontSize: '0.55rem', color: '#666' }}>DESTINATION</div>
                             </div>
                         </div>
 
                         {/* Timing Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', margin: '20px 0', padding: '15px 0', borderTop: '1px solid #333', borderBottom: '1px solid #333', textAlign: 'center' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px', margin: '15px 0', padding: '10px 0', borderTop: '1px solid #333', borderBottom: '1px solid #333', textAlign: 'center' }}>
                             {/* DEPARTURE */}
                             <div>
-                                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_dep)}</div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_dep)}</div>
                                 {flight.dep_delay ? (
-                                    <div style={{ fontSize: '0.5rem', color: '#ff4444', fontWeight: 'bold' }}>{flight.dep_delay}</div>
+                                    <div style={{ fontSize: '0.45rem', color: '#ff4444', fontWeight: 'bold' }}>{flight.dep_delay}</div>
                                 ) : (
-                                    <div style={{ fontSize: '0.5rem', color: '#666' }}>EST. DEP</div>
+                                    <div style={{ fontSize: '0.45rem', color: '#666' }}>EST. DEP</div>
                                 )}
                             </div>
                             
                             {/* TIME LEFT */}
                             <div>
-                                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#00ffcc' }}>
                                     {timeLeftDisplay}
                                 </div>
-                                <div style={{ fontSize: '0.5rem', color: '#666' }}>TIME LEFT</div>
+                                <div style={{ fontSize: '0.45rem', color: '#666' }}>TIME LEFT</div>
                             </div>
                             
                             {/* ARRIVAL - HIDDEN IF DELAYED */}
                             <div>
                                 {flight.dep_delay ? (
-                                    <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#444' }}>--:--</div>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#444' }}>--:--</div>
                                 ) : (
-                                    <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_arr)}</div>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_arr)}</div>
                                 )}
-                                <div style={{ fontSize: '0.5rem', color: '#666' }}>EST. ARR</div>
+                                <div style={{ fontSize: '0.45rem', color: '#666' }}>EST. ARR</div>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                            <div><div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{flight.alt.toLocaleString()} FT</div><div style={{ fontSize: '0.6rem', color: '#666' }}>ALTITUDE</div></div>
-                            <div style={{ textAlign: 'right' }}><div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{flight.speed} KTS</div><div style={{ fontSize: '0.6rem', color: '#666' }}>SPEED</div></div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                            <div><div style={{ fontSize: '1rem', fontWeight: 'bold' }}>{flight.alt.toLocaleString()} FT</div><div style={{ fontSize: '0.55rem', color: '#666' }}>ALTITUDE</div></div>
+                            <div style={{ textAlign: 'right' }}><div style={{ fontSize: '1rem', fontWeight: 'bold' }}>{flight.speed} KTS</div><div style={{ fontSize: '0.55rem', color: '#666' }}>SPEED</div></div>
                         </div>
 
                         <div style={{ height: '220px', borderRadius: '20px', overflow: 'hidden' }}>
