@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -30,28 +30,15 @@ const AIRCRAFT_MAPPING = {
 };
 
 const getAircraftName = (code) => {
-    if (!code || code === 'UNK') return "Commercial Aircraft";
+    if (!code || code === 'UNK') return "Private Aircraft";
     return AIRCRAFT_MAPPING[code] || `Aircraft Type: ${code}`;
 };
 
-const formatTime = (isoStr) => {
-    if (!isoStr) return "--:--";
-    try {
-        const date = new Date(isoStr);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-    } catch { return "--:--"; }
-};
+const planeSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="30px"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
 
-const planeSvgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="30px"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
 const homeSvg = `<svg viewBox="0 0 24 24" width="20px" height="20px"><circle cx="12" cy="12" r="8" fill="white" stroke="#00ffcc" stroke-width="3"/></svg>`;
 
-const tinyPlaneSvg = (
-    <svg viewBox="0 0 24 24" fill="#00ffcc" width="16px" height="16px" style={{ transform: 'rotate(90deg)' }}>
-        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-    </svg>
-);
-
-const createRotatedIcon = (rot) => L.divIcon({ html: `<div style="transform: rotate(${rot}deg)">${planeSvgIcon}</div>`, className: '', iconSize: [30, 30] });
+const createRotatedIcon = (rot) => L.divIcon({ html: `<div style="transform: rotate(${rot}deg)">${planeSvg}</div>`, className: '', iconSize: [30, 30] });
 const homeIcon = L.divIcon({ html: homeSvg, className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
 
 function MapBounds({ planeLat, planeLon, userLat, userLon }) {
@@ -70,8 +57,6 @@ function MapBounds({ planeLat, planeLon, userLat, userLon }) {
 export default function App() {
     const [flight, setFlight] = useState(null);
     const [status, setStatus] = useState("SYSTEM READY");
-    const [timeLeftDisplay, setTimeLeftDisplay] = useState("--");
-    const [progress, setProgress] = useState(0); 
     const [userLocation, setUserLocation] = useState(null);
     const ws = useRef(null);
 
@@ -101,22 +86,26 @@ export default function App() {
 
         const connect = () => {
             ws.current = new WebSocket(WS_URL);
-            
+
             ws.current.onopen = () => {
                 setStatus("SCANNING SKY...");
-                const payload = JSON.stringify({
+                ws.current.send(JSON.stringify({
                     action: "update_location",
                     lat: userLocation.lat,
-                    lon: userLocation.lon
-                });
-                ws.current.send(payload);
+                    lon: userLocation.lon,
+                }));
             };
 
             ws.current.onmessage = (e) => {
                 const data = JSON.parse(e.data);
-                if (data.type === 'radar_update') {
-                    setFlight(data.flight); 
-                    
+                if (data.type === 'request_location') {
+                    ws.current.send(JSON.stringify({
+                        action: 'update_location',
+                        lat: userLocation.lat,
+                        lon: userLocation.lon,
+                    }));
+                } else if (data.type === 'radar_update') {
+                    setFlight(data.flight);
                     if (data.flight) {
                         setStatus("LIVE");
                     } else {
@@ -132,35 +121,6 @@ export default function App() {
         return () => ws.current?.close();
     }, [userLocation]); 
 
-    useEffect(() => {
-        const calculateStats = () => {
-            if (flight && flight.est_arr && flight.est_dep) {
-                const now = new Date().getTime();
-                const arrival = new Date(flight.est_arr).getTime();
-                const departure = new Date(flight.est_dep).getTime();
-                const diff = arrival - now;
-                const minutes = Math.floor(diff / 60000);
-                if (minutes <= 0) {
-                    setTimeLeftDisplay("ARRIVING");
-                } else {
-                    setTimeLeftDisplay(`${minutes} MIN`);
-                }
-                const totalDuration = arrival - departure;
-                const elapsed = now - departure;
-                let pct = (elapsed / totalDuration) * 100;
-                if (pct < 0) pct = 0;
-                if (pct > 100) pct = 100;
-                setProgress(pct);
-            } else {
-                setTimeLeftDisplay("--");
-                setProgress(0);
-            }
-        };
-
-        calculateStats(); 
-        const timer = setInterval(calculateStats, 1000); 
-        return () => clearInterval(timer);
-    }, [flight]);
 
     return (
         <div style={{ width: '100vw', height: '100vh', background: '#000', color: 'white', position: 'relative', overflow: 'hidden' }}>
@@ -370,60 +330,16 @@ export default function App() {
                             <div style={{ fontSize: '0.5rem', color: '#666', letterSpacing: '1px' }}>AIRCRAFT EQUIPMENT</div>
                         </div>
 
-                        {/* --- VISUAL FLIGHT PROGRESS BAR --- */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '15px 0 10px 0' }}>
+                        {/* --- ORIGIN → DESTINATION --- */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '15px 0', padding: '12px 0', borderTop: '1px solid #222', borderBottom: '1px solid #222' }}>
                             <div style={{ textAlign: 'left' }}>
-                                <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{flight.origin}</div>
+                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{flight.origin}</div>
                                 <div style={{ fontSize: '0.55rem', color: '#666' }}>ORIGIN</div>
                             </div>
-
-                            <div style={{ flex: 1, margin: '0 10px', position: 'relative', height: '20px', display: 'flex', alignItems: 'center' }}>
-                                <div style={{ position: 'absolute', width: '100%', height: '2px', background: '#333' }}></div>
-                                <div style={{ position: 'absolute', width: `${progress}%`, height: '2px', background: '#00ffcc', opacity: 0.5 }}></div>
-                                <div style={{ 
-                                    position: 'absolute', 
-                                    left: `${progress}%`, 
-                                    transform: 'translate(-50%, 1px)', 
-                                    transition: 'left 1s linear'
-                                }}>
-                                    {tinyPlaneSvg}
-                                </div>
-                            </div>
-
+                            <div style={{ color: '#00ffcc', fontSize: '1.2rem' }}>✈</div>
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{flight.dest}</div>
+                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{flight.dest}</div>
                                 <div style={{ fontSize: '0.55rem', color: '#666' }}>DESTINATION</div>
-                            </div>
-                        </div>
-
-                        {/* Timing Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px', margin: '15px 0', padding: '10px 0', borderTop: '1px solid #333', borderBottom: '1px solid #333', textAlign: 'center' }}>
-                            {/* DEPARTURE */}
-                            <div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_dep)}</div>
-                                {flight.dep_delay ? (
-                                    <div style={{ fontSize: '0.45rem', color: '#ff4444', fontWeight: 'bold' }}>{flight.dep_delay}</div>
-                                ) : (
-                                    <div style={{ fontSize: '0.45rem', color: '#666' }}>EST. DEP</div>
-                                )}
-                            </div>
-                            
-                            {/* TIME LEFT */}
-                            <div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#00ffcc' }}>
-                                    {timeLeftDisplay}
-                                </div>
-                                <div style={{ fontSize: '0.45rem', color: '#666' }}>TIME LEFT</div>
-                            </div>
-                            
-                            {/* ARRIVAL - HIDDEN IF DELAYED */}
-                            <div>
-                                {flight.dep_delay ? (
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#444' }}>--:--</div>
-                                ) : (
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#00ffcc' }}>{formatTime(flight.est_arr)}</div>
-                                )}
-                                <div style={{ fontSize: '0.45rem', color: '#666' }}>EST. ARR</div>
                             </div>
                         </div>
 
@@ -439,6 +355,9 @@ export default function App() {
                                     <Marker position={[userLocation.lat, userLocation.lon]} icon={homeIcon} />
                                     {flight.lat && flight.lon && (
                                         <>
+                                            {flight.track && flight.track.length > 1 && (
+                                                <Polyline positions={flight.track} color="#00aaff" weight={2} opacity={0.7} />
+                                            )}
                                             <Marker position={[flight.lat, flight.lon]} icon={createRotatedIcon(flight.heading)} />
                                             <MapBounds planeLat={flight.lat} planeLon={flight.lon} userLat={userLocation.lat} userLon={userLocation.lon} />
                                         </>
