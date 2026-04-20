@@ -34,6 +34,8 @@ export default function App() {
     const [status, setStatus]           = useState('SYSTEM READY');
     const [userLocation, setUserLocation] = useState(null);
     const [btnHovered, setBtnHovered]   = useState(false);
+    const [hasBookmark, setHasBookmark] = useState(() => localStorage.getItem('site_bookmarked') === 'true');
+    const [showBookmarkModal, setShowBookmarkModal] = useState(false);
     const ws             = useRef(null);
     const mapDivRef      = useRef(null);
     const mapRef         = useRef(null);
@@ -494,6 +496,64 @@ export default function App() {
         };
     }, []);
 
+    // ── Bookmark helpers ──────────────────────────────────────
+    const isMobile = () => /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+
+    const handleBookmarkClick = async () => {
+        if (isMobile() && navigator.share) {
+            try {
+                await navigator.share({ title: document.title, url: window.location.href });
+                setShowBookmarkModal(true); // ask for confirmation after share sheet closes
+            } catch {
+                // user cancelled share — do nothing
+            }
+        } else {
+            setShowBookmarkModal(true);
+        }
+    };
+
+    const getBookmarkInstructions = () => {
+        const ua = navigator.userAgent;
+        const isMac = navigator.platform?.toLowerCase().includes('mac') || ua.includes('Mac');
+        const isIOS = /iPhone|iPad|iPod/.test(ua);
+        const isAndroid = /Android/.test(ua);
+        const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
+        const isFirefox = /Firefox/.test(ua);
+        const isEdge = /Edg\//.test(ua);
+
+        if (isIOS) return {
+            shortcut: null,
+            steps: ['Tap the Share button at the bottom of the screen', 'Scroll down and tap "Add to Home Screen" or "Add Bookmark"'],
+        };
+        if (isAndroid) return {
+            shortcut: null,
+            steps: ['Tap the menu (⋮) in the top-right corner', 'Tap "Add to bookmarks" or the star icon'],
+        };
+        if (isSafari) return {
+            shortcut: isMac ? '⌘ + D' : null,
+            steps: isMac ? ['Press ⌘ + D', 'Click "Add" to confirm'] : ['Tap the Share button', 'Tap "Add Bookmark"'],
+        };
+        if (isFirefox) return {
+            shortcut: isMac ? '⌘ + D' : 'Ctrl + D',
+            steps: [isMac ? 'Press ⌘ + D' : 'Press Ctrl + D', 'Click "Save" to confirm'],
+        };
+        if (isEdge) return {
+            shortcut: isMac ? '⌘ + D' : 'Ctrl + D',
+            steps: [isMac ? 'Press ⌘ + D' : 'Press Ctrl + D', 'Click "Done" to save'],
+        };
+        // Chrome / default
+        return {
+            shortcut: isMac ? '⌘ + D' : 'Ctrl + D',
+            steps: [isMac ? 'Press ⌘ + D' : 'Press Ctrl + D', 'Click "Done" to confirm'],
+        };
+    };
+
+    const confirmBookmarked = () => {
+        localStorage.setItem('site_bookmarked', 'true');
+        setHasBookmark(true);
+        setShowBookmarkModal(false);
+    };
+
     // ── Request user GPS ─────────────────────────────────────
     const requestLocation = () => {
         setStatus('REQUESTING ACCESS...');
@@ -910,6 +970,32 @@ export default function App() {
                         <p style={{ color: '#555', fontSize: '0.8rem', fontFamily: 'Inter, system-ui, sans-serif', margin: 0 }}>
                             {userLocation ? `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}` : 'Initializing...'}
                         </p>
+
+                        {!hasBookmark && (
+                            <div style={{ marginTop: '20px' }}>
+                                <button
+                                    onClick={handleBookmarkClick}
+                                    style={{
+                                        background: 'rgba(0,255,204,0.08)',
+                                        border: '1px solid rgba(0,255,204,0.35)',
+                                        color: '#00ffcc',
+                                        padding: '9px 20px',
+                                        fontSize: '0.65rem',
+                                        fontWeight: 700,
+                                        borderRadius: '50px',
+                                        cursor: 'pointer',
+                                        letterSpacing: '1.5px',
+                                        fontFamily: 'Inter, system-ui, sans-serif',
+                                        transition: 'all 0.2s ease',
+                                        width: '100%',
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,255,204,0.15)'; e.currentTarget.style.boxShadow = '0 0 14px rgba(0,255,204,0.2)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,255,204,0.08)'; e.currentTarget.style.boxShadow = 'none'; }}
+                                >
+                                    + ADD AS BOOKMARK
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                 ) : (
@@ -972,9 +1058,109 @@ export default function App() {
                                 pointerEvents: 'none', textTransform: 'uppercase',
                             }}>LIVE AIRSPACE</div>
                         </div>
+
                     </div>
                 )}
             </div>
+
+            {/* Bookmark modal */}
+            {showBookmarkModal && (() => {
+                const mobile = isMobile();
+                const { shortcut, steps } = getBookmarkInstructions();
+                return (
+                    <div
+                        onClick={() => setShowBookmarkModal(false)}
+                        style={{
+                            position: 'fixed', inset: 0, zIndex: 100,
+                            background: 'rgba(0,0,0,0.75)',
+                            backdropFilter: 'blur(6px)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: '20px', boxSizing: 'border-box',
+                        }}
+                    >
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                background: 'rgba(15,15,20,0.98)',
+                                border: '1px solid rgba(0,255,204,0.35)',
+                                borderRadius: '24px',
+                                padding: '30px 24px',
+                                maxWidth: '340px',
+                                width: '100%',
+                                fontFamily: 'Inter, system-ui, sans-serif',
+                                boxShadow: '0 0 40px rgba(0,255,204,0.1)',
+                                textAlign: 'center',
+                            }}
+                        >
+                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔖</div>
+                            <div style={{ fontSize: '0.6rem', letterSpacing: '2px', color: '#00ffcc', fontWeight: 700, marginBottom: '6px' }}>ADD AS BOOKMARK</div>
+                            <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '24px', lineHeight: 1.5 }}>
+                                {mobile ? 'Did you save it from the share sheet?' : 'Follow the steps below to save this page'}
+                            </div>
+
+                            {!mobile && shortcut && (
+                                <div style={{
+                                    background: 'rgba(0,255,204,0.08)',
+                                    border: '1px solid rgba(0,255,204,0.25)',
+                                    borderRadius: '12px',
+                                    padding: '14px',
+                                    marginBottom: '16px',
+                                    fontSize: '1.4rem',
+                                    fontWeight: 900,
+                                    color: '#00ffcc',
+                                    letterSpacing: '2px',
+                                }}>
+                                    {shortcut}
+                                </div>
+                            )}
+
+                            {!mobile && (
+                                <div style={{ marginBottom: '24px', textAlign: 'left' }}>
+                                    {steps.map((step, i) => (
+                                        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
+                                            <div style={{
+                                                minWidth: '20px', height: '20px', borderRadius: '50%',
+                                                background: 'rgba(0,255,204,0.15)', border: '1px solid rgba(0,255,204,0.4)',
+                                                color: '#00ffcc', fontSize: '0.6rem', fontWeight: 700,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            }}>{i + 1}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#ccc', lineHeight: 1.5, paddingTop: '2px' }}>{step}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <button
+                                onClick={confirmBookmarked}
+                                style={{
+                                    width: '100%', padding: '12px',
+                                    background: '#00ffcc', border: 'none',
+                                    borderRadius: '50px', color: '#000',
+                                    fontSize: '0.7rem', fontWeight: 900,
+                                    letterSpacing: '1.5px', cursor: 'pointer',
+                                    fontFamily: 'Inter, system-ui, sans-serif',
+                                    marginBottom: '10px',
+                                }}
+                            >
+                                DONE, I BOOKMARKED IT
+                            </button>
+                            <button
+                                onClick={() => setShowBookmarkModal(false)}
+                                style={{
+                                    width: '100%', padding: '10px',
+                                    background: 'transparent', border: '1px solid #333',
+                                    borderRadius: '50px', color: '#555',
+                                    fontSize: '0.65rem', fontWeight: 600,
+                                    letterSpacing: '1px', cursor: 'pointer',
+                                    fontFamily: 'Inter, system-ui, sans-serif',
+                                }}
+                            >
+                                NOT NOW
+                            </button>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 }
