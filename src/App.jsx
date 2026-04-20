@@ -500,12 +500,9 @@ export default function App() {
     const isMobile = () => /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
 
     const handleBookmarkClick = async () => {
-        if (isMobile() && navigator.share) {
-            try {
-                await navigator.share({ title: document.title, url: window.location.href });
-                setShowBookmarkModal(true); // ask for confirmation after share sheet closes
-            } catch {
-                // user cancelled share — do nothing
+        if (isMobile()) {
+            if (navigator.share) {
+                try { await navigator.share({ title: document.title, url: window.location.href }); } catch { }
             }
         } else {
             setShowBookmarkModal(true);
@@ -971,7 +968,7 @@ export default function App() {
                             {userLocation ? `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}` : 'Initializing...'}
                         </p>
 
-                        {!hasBookmark && (
+                        {(isMobile() || !hasBookmark) && (
                             <div style={{ marginTop: '20px' }}>
                                 <button
                                     onClick={handleBookmarkClick}
@@ -992,7 +989,7 @@ export default function App() {
                                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,255,204,0.15)'; e.currentTarget.style.boxShadow = '0 0 14px rgba(0,255,204,0.2)'; }}
                                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,255,204,0.08)'; e.currentTarget.style.boxShadow = 'none'; }}
                                 >
-                                    + ADD AS BOOKMARK
+                                    {isMobile() ? 'SHARE' : '+ ADD AS BOOKMARK'}
                                 </button>
                             </div>
                         )}
