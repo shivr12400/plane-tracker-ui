@@ -2,7 +2,7 @@
 
 A real-time local airspace monitor that shows the nearest aircraft overhead — updated live via WebSocket, with a procedural animated sky, a Leaflet dark-map tracker, and smooth dead-reckoning animation between server ticks.
 
-**Live site →** [flightaware.shivrathod.com](https://flightaware.shivrathod.com) *(if deployed)*
+**Live site →** [aeropine.com](https://aeropine.com)
 
 ---
 
