@@ -9,25 +9,154 @@ const DEFAULT_LOC = { lat: 40.587787, lon: -74.333724 };
 
 // Aircraft ICAO code → display name
 const AIRCRAFT_MAPPING = {
+    // Airbus narrowbody
     'A20N': 'Airbus A320neo', 'A21N': 'Airbus A321neo', 'A319': 'Airbus A319', 'A320': 'Airbus A320', 'A321': 'Airbus A321',
+    'A318': 'Airbus A318',
+    // Airbus widebody
     'A332': 'Airbus A330-200', 'A333': 'Airbus A330-300', 'A339': 'Airbus A330-900neo',
     'A343': 'Airbus A340-300', 'A346': 'Airbus A340-600', 'A359': 'Airbus A350-900', 'A35K': 'Airbus A350-1000',
     'A388': 'Airbus A380-800', 'BCS1': 'Airbus A220-100', 'BCS3': 'Airbus A220-300',
-    'B38M': 'Boeing 737 MAX 8', 'B39M': 'Boeing 737 MAX 9', 'B737': 'Boeing 737-700', 'B738': 'Boeing 737-800', 'B739': 'Boeing 737-900',
-    'B744': 'Boeing 747-400', 'B748': 'Boeing 747-8', 'B752': 'Boeing 757-200', 'B753': 'Boeing 757-300',
-    'B763': 'Boeing 767-300', 'B764': 'Boeing 767-400', 'B772': 'Boeing 777-200', 'B77L': 'Boeing 777-200LR',
-    'B77W': 'Boeing 777-300ER', 'B788': 'Boeing 787-8', 'B789': 'Boeing 787-9', 'B78X': 'Boeing 787-10',
-    'E75L': 'Embraer 175 (Enhanced)', 'E175': 'Embraer 175', 'E75S': 'Embraer 175', 'E190': 'Embraer 190', 'E195': 'Embraer 195',
-    'CRJ2': 'CRJ-200', 'CRJ7': 'CRJ-700', 'CRJ9': 'CRJ-900', 'CRJX': 'CRJ-1000', 'DH8D': 'De Havilland Dash 8 Q400',
+    // Boeing narrowbody
+    'B38M': 'Boeing 737 MAX 8', 'B39M': 'Boeing 737 MAX 9', 'B3XM': 'Boeing 737 MAX 10',
+    'B737': 'Boeing 737-700', 'B738': 'Boeing 737-800', 'B739': 'Boeing 737-900',
+    'B736': 'Boeing 737-600', 'B735': 'Boeing 737-500', 'B734': 'Boeing 737-400', 'B733': 'Boeing 737-300',
+    // Boeing widebody
+    'B744': 'Boeing 747-400', 'B748': 'Boeing 747-8', 'B74S': 'Boeing 747SP',
+    'B752': 'Boeing 757-200', 'B753': 'Boeing 757-300',
+    'B763': 'Boeing 767-300', 'B764': 'Boeing 767-400', 'B762': 'Boeing 767-200',
+    'B772': 'Boeing 777-200', 'B77L': 'Boeing 777-200LR', 'B77W': 'Boeing 777-300ER', 'B773': 'Boeing 777-300',
+    'B788': 'Boeing 787-8', 'B789': 'Boeing 787-9', 'B78X': 'Boeing 787-10',
+    // McDonnell Douglas / legacy Boeing
+    'MD11': 'McDonnell Douglas MD-11', 'MD82': 'McDonnell Douglas MD-82', 'MD83': 'McDonnell Douglas MD-83',
+    'DC10': 'McDonnell Douglas DC-10',
+    // Embraer jets
+    'E75L': 'Embraer 175 (Enhanced)', 'E175': 'Embraer 175', 'E75S': 'Embraer 175',
+    'E190': 'Embraer 190', 'E195': 'Embraer 195', 'E290': 'Embraer E190-E2', 'E295': 'Embraer E195-E2',
+    'E170': 'Embraer 170', 'E135': 'Embraer ERJ-135', 'E145': 'Embraer ERJ-145',
+    // Bombardier regional jets
+    'CRJ2': 'CRJ-200', 'CRJ7': 'CRJ-700', 'CRJ9': 'CRJ-900', 'CRJX': 'CRJ-1000',
+    // Turboprops / regional props
+    'DH8D': 'De Havilland Dash 8 Q400', 'DH8C': 'De Havilland Dash 8 Q300',
+    'DH8A': 'De Havilland Dash 8 Q100', 'DH8B': 'De Havilland Dash 8 Q200',
+    'AT72': 'ATR 72', 'AT75': 'ATR 72-500', 'AT76': 'ATR 72-600', 'AT43': 'ATR 42-300', 'AT45': 'ATR 42-500',
+    'SF34': 'Saab 340', 'S20T': 'Saab 2000', 'BE20': 'Beechcraft King Air 200', 'BE9L': 'Beechcraft King Air 90',
+    'C208': 'Cessna Caravan', 'C208B': 'Cessna Grand Caravan',
+    'PAY3': 'Piper Navajo', 'PA44': 'Piper Seminole', 'PA28': 'Piper Cherokee',
+    'PA31': 'Piper Navajo 310', 'PA34': 'Piper Seneca',
+    'BN2P': 'Britten-Norman Islander', 'TRIN': 'Piper Trinidad',
+    // Business jets
     'GLF4': 'Gulfstream IV', 'GLF5': 'Gulfstream V', 'GLF6': 'Gulfstream G650',
-    'CL30': 'Challenger 300', 'CL60': 'Challenger 600', 'C56X': 'Cessna Citation Excel', 'C68A': 'Cessna Citation Latitude',
-    'F2TH': 'Dassault Falcon 2000', 'PC12': 'Pilatus PC-12', 'C172': 'Cessna 172 Skyhawk', 'SR22': 'Cirrus SR22',
+    'G150': 'Gulfstream G150', 'G280': 'Gulfstream G280', 'G550': 'Gulfstream G550',
+    'CL30': 'Challenger 300', 'CL35': 'Challenger 350', 'CL60': 'Challenger 600',
+    'C25A': 'Cessna Citation CJ2', 'C25B': 'Cessna Citation CJ3', 'C25C': 'Cessna Citation CJ4',
+    'C56X': 'Cessna Citation Excel', 'C68A': 'Cessna Citation Latitude', 'C750': 'Cessna Citation X',
+    'C510': 'Cessna Citation Mustang', 'C525': 'Cessna CitationJet',
+    'F2TH': 'Dassault Falcon 2000', 'F900': 'Dassault Falcon 900', 'F7X': 'Dassault Falcon 7X', 'F8X': 'Dassault Falcon 8X',
+    'E50P': 'Embraer Phenom 100', 'E55P': 'Embraer Phenom 300', 'E545': 'Embraer Legacy 450', 'E550': 'Embraer Legacy 500',
+    'LJ35': 'Learjet 35', 'LJ45': 'Learjet 45', 'LJ60': 'Learjet 60', 'LJ75': 'Learjet 75',
+    'H25B': 'Hawker 800XP', 'H25C': 'Hawker 850XP', 'BE40': 'Beechcraft Premier I',
+    'PC24': 'Pilatus PC-24',
+    // Small piston / general aviation
+    'PC12': 'Pilatus PC-12', 'C172': 'Cessna 172 Skyhawk', 'C182': 'Cessna 182 Skylane', 'GX' : "Another thing",
+    'C152': 'Cessna 152', 'C206': 'Cessna 206 Stationair', 'C210': 'Cessna 210 Centurion',
+    'SR22': 'Cirrus SR22', 'SR20': 'Cirrus SR20',
+    'DA40': 'Diamond DA40', 'DA42': 'Diamond DA42 Twin Star', 'DA62': 'Diamond DA62',
+    'BE36': 'Beechcraft Bonanza', 'BE58': 'Beechcraft Baron',
+    'M20P': 'Mooney M20', 'TOBA': 'Piper Tobago',
+    // Helicopters
+    'H60': 'Sikorsky Black Hawk', 'S61': 'Sikorsky S-61', 'S76': 'Sikorsky S-76',
+    'EC35': 'Airbus H135', 'EC45': 'Airbus H145', 'EC55': 'Airbus H155',
+    'EC30': 'Airbus EC130', 'AS32': 'Airbus AS332 Super Puma', 'H225': 'Airbus H225',
+    'B06': 'Bell 206 JetRanger', 'B212': 'Bell 212', 'B407': 'Bell 407', 'B412': 'Bell 412', 'B429': 'Bell 429',
+    'R22': 'Robinson R22', 'R44': 'Robinson R44', 'R66': 'Robinson R66',
+    'MD52': 'MD Helicopters MD-520N', 'MD83H': 'MD Helicopters MD-83',
+    'LYNC': 'AgustaWestland Lynx', 'AW09': 'AgustaWestland AW09',
+    'AW13': 'AgustaWestland AW139', 'AW16': 'AgustaWestland AW169', 'AW18': 'AgustaWestland AW189',
+    'CH47': 'Boeing CH-47 Chinook', 'V22': 'Bell Boeing V-22 Osprey',
+    // Military / special
+    'C130': 'Lockheed C-130 Hercules', 'C17': 'Boeing C-17 Globemaster',
+    'P8': 'Boeing P-8 Poseidon', 'E3TF': 'Boeing E-3 Sentry',
 };
 
 const getAircraftName = (code) => {
     if (!code || code === 'UNK') return 'Private Aircraft';
     return AIRCRAFT_MAPPING[code] || `Aircraft Type: ${code}`;
 };
+
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+
+const HELICOPTER_CODES = new Set([
+    'H60','S61','S76','EC35','EC45','EC55','EC30','AS32','H225',
+    'B06','B212','B407','B412','B429','R22','R44','R66',
+    'MD52','LYNC','AW09','AW13','AW16','AW18','CH47','V22',
+]);
+const SMALL_GA_CODES = new Set([
+    'C172','C152','C182','C206','C210','SR22','SR20','GX',
+    'DA40','DA42','DA62','BE36','BE58','M20P','PA28','PA44','TOBA',
+]);
+const TURBOPROP_CODES = new Set([
+    'DH8D','DH8C','DH8A','DH8B',
+    'AT72','AT75','AT76','AT43','AT45',
+    'SF34','S20T','BE20','BE9L',
+    'C208','C208B','PAY3','PA31','PA34','BN2P','TRIN',
+]);
+const PRIVATE_JET_CODES = new Set([
+    'CRJ2','CRJ7','CRJ9','CRJX',
+    'GLF4','GLF5','GLF6','G150','G280','G550',
+    'CL30','CL35','CL60',
+    'C25A','C25B','C25C','C56X','C68A','C750','C510','C525',
+    'F2TH','F900','F7X','F8X',
+    'E50P','E55P','E545','E550',
+    'LJ35','LJ45','LJ60','LJ75',
+    'H25B','H25C','BE40','PC24',
+]);
+
+const planeSvgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="28" height="28"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
+
+const getAircraftImgHtml = (type) => {
+    if (HELICOPTER_CODES.has(type))
+        return `<img src="/Helicopter.png" width="29" height="29" style="display:block;transform:rotate(-90deg);" />`;
+    if (SMALL_GA_CODES.has(type))
+        return `<img src="/SmallPlane.png" width="26" height="26" style="display:block;transform:rotate(-90deg);" />`;
+    if (TURBOPROP_CODES.has(type))
+        return `<img src="/Turboprop.png" width="26" height="26" style="display:block;transform:rotate(-90deg);" />`;
+    if (PRIVATE_JET_CODES.has(type))
+        return `<img src="/PJ.png" width="24" height="24" style="display:block;transform:rotate(-90deg);" />`;
+    return planeSvgStr;
+};
+
+const _classifying = new Set();
+async function classifyUnknownAircraft(code) {
+    if (!code || code === 'UNK' || AIRCRAFT_MAPPING[code] || _classifying.has(code) || !OPENAI_API_KEY) return;
+    _classifying.add(code);
+    try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_API_KEY}` },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [{ role: 'user', content: `Aircraft type code: "${code}". Classify as one of: HELICOPTER, SMALL_GA, PRIVATE_JET, TURBOPROP, OTHER. Reply in exactly this format: TYPE:Full Aircraft Name (e.g. "HELICOPTER:Sikorsky S-92" or "OTHER:Boeing 737-800").` }],
+                max_tokens: 30,
+            }),
+        });
+        const json = await res.json();
+        const text = (json.choices?.[0]?.message?.content ?? '').trim();
+        const colon = text.indexOf(':');
+        if (colon === -1) return;
+        const category = text.slice(0, colon).trim();
+        const name = text.slice(colon + 1).trim();
+        if (!name) return;
+        AIRCRAFT_MAPPING[code] = name;
+        if (category === 'HELICOPTER') HELICOPTER_CODES.add(code);
+        else if (category === 'SMALL_GA') SMALL_GA_CODES.add(code);
+        else if (category === 'TURBOPROP') TURBOPROP_CODES.add(code);
+        else if (category === 'PRIVATE_JET') PRIVATE_JET_CODES.add(code);
+    } catch (_) {
+        // silent fail — next update will retry
+    } finally {
+        _classifying.delete(code);
+    }
+}
 
 export default function App() {
     const [flight, setFlight]           = useState(null);
@@ -599,6 +728,16 @@ export default function App() {
                 } else if (data.type === 'radar_update') {
                     setFlight(data.flight);
                     setStatus(data.flight ? 'LIVE' : 'SCANNING SKIES...');
+                    const type = data.flight?.type;
+                    if (type && type !== 'UNK' && !AIRCRAFT_MAPPING[type]) {
+                        classifyUnknownAircraft(type).then(() => {
+                            if (!planeMarkerRef.current || !flightRef.current) return;
+                            const f = flightRef.current;
+                            if (f.type !== type) return;
+                            const { marker, makePlaneHtml } = planeMarkerRef.current;
+                            marker.setIcon(L.divIcon({ html: makePlaneHtml(f.heading, f.callsign, f.type), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }));
+                        });
+                    }
                 }
             };
 
@@ -668,12 +807,11 @@ export default function App() {
             icon: L.divIcon({ html: homeHtml, className: '', iconSize: [0, 0], iconAnchor: [0, 0] }),
         }).addTo(map);
 
-        const planeSvgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="28" height="28"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
-        const makePlaneHtml = (heading, callsign) => `
+        const makePlaneHtml = (heading, callsign, type) => `
           <div style="position:relative;width:0;height:0;transform:rotate(${heading}deg)">
             <div class="plane-pulse" style="transform:translate(-50%,-50%)"></div>
             <div style="position:absolute;transform:translate(-50%,-50%);filter:drop-shadow(0 0 8px rgba(0,255,204,0.9));">
-              ${planeSvgStr}
+              ${getAircraftImgHtml(type)}
             </div>
           </div>
           <div style="
@@ -685,7 +823,7 @@ export default function App() {
           ">${callsign}</div>`;
 
         const planeMarker = L.marker([f.lat, f.lon], {
-            icon: L.divIcon({ html: makePlaneHtml(f.heading, f.callsign), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }),
+            icon: L.divIcon({ html: makePlaneHtml(f.heading, f.callsign, f.type), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }),
             zIndexOffset: 1000,
         }).addTo(map);
         planeMarkerRef.current = { marker: planeMarker, makePlaneHtml };
@@ -725,7 +863,7 @@ export default function App() {
         // Update heading icon so it reflects the latest heading immediately
         if (planeMarkerRef.current) {
             const { marker, makePlaneHtml } = planeMarkerRef.current;
-            marker.setIcon(L.divIcon({ html: makePlaneHtml(f.heading, f.callsign), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }));
+            marker.setIcon(L.divIcon({ html: makePlaneHtml(f.heading, f.callsign, f.type), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }));
         }
 
         const bounds = L.latLngBounds([[USER_LAT, USER_LON], [f.lat, f.lon]]);
