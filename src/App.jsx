@@ -163,6 +163,7 @@ export default function App() {
     const [status, setStatus]           = useState('SYSTEM READY');
     const [userLocation, setUserLocation] = useState(null);
     const [btnHovered, setBtnHovered]   = useState(false);
+    const [locRequesting, setLocRequesting] = useState(false);
     const [hasBookmark, setHasBookmark] = useState(() => localStorage.getItem('site_bookmarked') === 'true');
     const [showBookmarkModal, setShowBookmarkModal] = useState(false);
     const ws             = useRef(null);
@@ -682,19 +683,27 @@ export default function App() {
 
     // ── Request user GPS ─────────────────────────────────────
     const requestLocation = () => {
+        if (locRequesting) return;
+        setLocRequesting(true);
         setStatus('REQUESTING ACCESS...');
         if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                ({ coords: { latitude, longitude } }) => {
-                    setUserLocation({ lat: latitude, lon: longitude });
-                    setStatus('CONNECTING...');
-                },
-                (err) => {
-                    console.error('Location denied', err);
-                    setUserLocation(DEFAULT_LOC);
-                    setStatus('ACCESS DENIED. USING DEFAULT...');
-                }
-            );
+            try {
+                navigator.geolocation.getCurrentPosition(
+                    ({ coords: { latitude, longitude } }) => {
+                        setUserLocation({ lat: latitude, lon: longitude });
+                        setStatus('CONNECTING...');
+                    },
+                    (err) => {
+                        console.error('Location denied', err);
+                        setUserLocation(DEFAULT_LOC);
+                        setStatus('ACCESS DENIED. USING DEFAULT...');
+                    },
+                    { timeout: 10000, maximumAge: 60000 }
+                );
+            } catch (e) {
+                setUserLocation(DEFAULT_LOC);
+                setStatus('ACCESS DENIED. USING DEFAULT...');
+            }
         } else {
             setUserLocation(DEFAULT_LOC);
             setStatus('NO GPS SUPPORT. USING DEFAULT...');
@@ -1042,22 +1051,24 @@ export default function App() {
                             onClick={requestLocation}
                             onMouseEnter={() => setBtnHovered(true)}
                             onMouseLeave={() => setBtnHovered(false)}
+                            disabled={locRequesting}
                             style={{
-                                background: btnHovered ? '#00ffcc' : 'transparent',
+                                background: locRequesting ? 'rgba(0,255,204,0.15)' : (btnHovered ? '#00ffcc' : 'transparent'),
                                 border: '2px solid #00ffcc',
-                                color: btnHovered ? '#000' : '#00ffcc',
+                                color: locRequesting ? '#00ffcc' : (btnHovered ? '#000' : '#00ffcc'),
                                 padding: '15px 30px',
                                 fontSize: '1rem',
                                 fontWeight: 'bold',
                                 borderRadius: '50px',
-                                cursor: 'pointer',
+                                cursor: locRequesting ? 'default' : 'pointer',
                                 letterSpacing: '1px',
                                 transition: 'all 0.3s ease',
-                                boxShadow: btnHovered ? '0 0 25px rgba(0,255,204,0.6)' : '0 0 15px rgba(0,255,204,0.2)',
+                                boxShadow: locRequesting ? '0 0 20px rgba(0,255,204,0.3)' : (btnHovered ? '0 0 25px rgba(0,255,204,0.6)' : '0 0 15px rgba(0,255,204,0.2)'),
                                 fontFamily: 'Inter, system-ui, sans-serif',
+                                opacity: locRequesting ? 0.7 : 1,
                             }}
                         >
-                            ALLOW LOCATION ACCESS
+                            {locRequesting ? 'REQUESTING ACCESS...' : 'ALLOW LOCATION ACCESS'}
                         </button>
                         <p style={{ marginTop: '20px', color: '#444', fontSize: '0.6rem', letterSpacing: '1px', fontFamily: 'Inter, system-ui, sans-serif' }}>
                             LOCATION DATA IS ONLY USED TO FIND AIRCRAFT NEAR YOU
@@ -1156,6 +1167,34 @@ export default function App() {
                             <div style={{ fontSize: '1rem', color: '#00ffcc', fontWeight: 'bold' }}>{getAircraftName(flight.type)}</div>
                             <div style={{ fontSize: '0.5rem', color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>AIRCRAFT EQUIPMENT</div>
                         </div>
+
+                        {/* Aircraft photo */}
+                        {flight.photo_url && (
+                            <div style={{
+                                marginBottom: '15px', borderRadius: '14px',
+                                overflow: 'hidden', position: 'relative',
+                                border: '1px solid rgba(0,255,204,0.12)',
+                            }}>
+                                <img
+                                    src={flight.photo_url}
+                                    alt={flight.callsign}
+                                    style={{ width: '100%', height: '155px', objectFit: 'cover', display: 'block', opacity: 0.82 }}
+                                    onError={e => { e.currentTarget.parentElement.style.display = 'none'; }}
+                                />
+                                <div style={{
+                                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%',
+                                    background: 'linear-gradient(to bottom, transparent, rgba(15,15,15,0.85))',
+                                    pointerEvents: 'none',
+                                }} />
+                                {flight.registration && (
+                                    <div style={{
+                                        position: 'absolute', bottom: 7, right: 9,
+                                        fontSize: '0.45rem', color: 'rgba(255,255,255,0.45)',
+                                        fontFamily: 'Inter, sans-serif', letterSpacing: '1px',
+                                    }}>{flight.registration}</div>
+                                )}
+                            </div>
+                        )}
 
                         {/* Route */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '15px 0', padding: '12px 0', borderTop: '1px solid #222', borderBottom: '1px solid #222' }}>
