@@ -686,26 +686,39 @@ export default function App() {
         if (locRequesting) return;
         setLocRequesting(true);
         setStatus('REQUESTING ACCESS...');
+
+        // Hard fallback — fires even if the browser permission prompt is never interacted with.
+        // (The geolocation `timeout` option only starts counting *after* permission is granted.)
+        const fallback = setTimeout(() => {
+            setUserLocation(DEFAULT_LOC);
+            setStatus('ACCESS DENIED. USING DEFAULT...');
+        }, 15000);
+
+        const done = (loc) => {
+            clearTimeout(fallback);
+            setUserLocation(loc);
+        };
+
         if ('geolocation' in navigator) {
             try {
                 navigator.geolocation.getCurrentPosition(
                     ({ coords: { latitude, longitude } }) => {
-                        setUserLocation({ lat: latitude, lon: longitude });
+                        done({ lat: latitude, lon: longitude });
                         setStatus('CONNECTING...');
                     },
                     (err) => {
                         console.error('Location denied', err);
-                        setUserLocation(DEFAULT_LOC);
+                        done(DEFAULT_LOC);
                         setStatus('ACCESS DENIED. USING DEFAULT...');
                     },
                     { timeout: 10000, maximumAge: 60000 }
                 );
             } catch (e) {
-                setUserLocation(DEFAULT_LOC);
+                done(DEFAULT_LOC);
                 setStatus('ACCESS DENIED. USING DEFAULT...');
             }
         } else {
-            setUserLocation(DEFAULT_LOC);
+            done(DEFAULT_LOC);
             setStatus('NO GPS SUPPORT. USING DEFAULT...');
         }
     };
@@ -982,6 +995,25 @@ export default function App() {
       @keyframes frLogoPopIn {
         to { opacity: 1; transform: scale(1); }
       }
+
+      @media (max-width: 480px) {
+        .state-wrap {
+          align-items: flex-start !important;
+          overflow-y: auto;
+          padding: 20px 0 !important;
+          box-sizing: border-box;
+        }
+        .flight-card {
+          padding: 15px !important;
+          width: 90% !important;
+        }
+        .fc-photo {
+          height: 85px !important;
+        }
+        .fc-map {
+          height: 150px !important;
+        }
+      }
     `;
 
     return (
@@ -991,7 +1023,7 @@ export default function App() {
             {/* Immersive sky background */}
             <canvas ref={skyCanvasRef} style={{ position: 'absolute', inset: 0, zIndex: 1, width: '100%', height: '100%' }} />
 
-            <div style={{ position: 'relative', zIndex: 10, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="state-wrap" style={{ position: 'relative', zIndex: 10, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
                 {/* ── STATE 1: SPLASH / PERMISSION ── */}
                 {!userLocation ? (
@@ -1146,7 +1178,7 @@ export default function App() {
 
                 ) : (
                     /* ── STATE 3: FLIGHT CARD ── */
-                    <div style={{
+                    <div className="flight-card" style={{
                         maxWidth: '420px', width: '94%', padding: '25px',
                         background: 'rgba(15,15,15,0.97)', borderRadius: '28px',
                         border: '1px solid rgba(0,255,204,0.3)', boxSizing: 'border-box',
@@ -1176,6 +1208,7 @@ export default function App() {
                                 border: '1px solid rgba(0,255,204,0.12)',
                             }}>
                                 <img
+                                    className="fc-photo"
                                     src={flight.photo_url}
                                     alt={flight.callsign}
                                     style={{ width: '100%', height: '155px', objectFit: 'cover', display: 'block', opacity: 0.82 }}
@@ -1223,7 +1256,7 @@ export default function App() {
 
                         {/* Map */}
                         <div style={{ position: 'relative', borderRadius: '20px', overflow: 'hidden', border: '1px solid rgba(0,255,204,0.15)' }}>
-                            <div ref={mapDivRef} style={{ height: '220px' }}></div>
+                            <div ref={mapDivRef} className="fc-map" style={{ height: '220px' }}></div>
                             <div style={{ position: 'absolute', inset: 0, borderRadius: '20px', boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)', pointerEvents: 'none' }}></div>
                             <div style={{
                                 position: 'absolute', bottom: 8, right: 10,
