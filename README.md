@@ -21,12 +21,18 @@ A real-time local airspace monitor that shows the nearest aircraft overhead — 
 </tr>
 <tr>
 <td align="center" width="50%">
+<img src="screenshots/03-live-day.png" alt="Live flight card – day" />
+<br/><sub><b>Live flight card — aircraft photo, route, telemetry, and map</b></sub>
+</td>
+<td align="center" width="50%">
 <img src="screenshots/04-live-night.png" alt="Live flight card – night" />
 <br/><sub><b>Live flight card — night mode, dark CartoDB map</b></sub>
 </td>
+</tr>
+<tr>
 <td align="center" width="50%">
 <img src="screenshots/05-mobile.png" alt="Mobile view" />
-<br/><sub><b>Mobile — iPhone-sized portrait view</b></sub>
+<br/><sub><b>Mobile — compact card with sky visible above and below</b></sub>
 </td>
 </tr>
 </table>
