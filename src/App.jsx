@@ -998,10 +998,7 @@ export default function App() {
 
       @media (max-width: 480px) {
         .state-wrap {
-          align-items: flex-start !important;
           overflow-y: auto;
-          padding: 20px 0 !important;
-          box-sizing: border-box;
         }
         .flight-card {
           padding: 15px !important;
