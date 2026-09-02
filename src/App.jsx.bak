@@ -164,9 +164,6 @@ export default function App() {
     const [userLocation, setUserLocation] = useState(null);
     const [btnHovered, setBtnHovered]   = useState(false);
     const [locRequesting, setLocRequesting] = useState(false);
-    // Armed the moment the user taps "start" — lets the WebSocket handshake and the
-    // Lambda cold start happen *while* the browser permission prompt is still open.
-    const [wsArmed, setWsArmed] = useState(false);
     const [hasBookmark, setHasBookmark] = useState(() => localStorage.getItem('site_bookmarked') === 'true');
     const [showBookmarkModal, setShowBookmarkModal] = useState(false);
     const ws             = useRef(null);
@@ -180,7 +177,6 @@ export default function App() {
     const flightRef       = useRef(null);   // latest flight data for the animation loop
     const userLocationRef = useRef(null);
     const animFrameRef    = useRef(null);
-    const wsClosedByUs    = useRef(false);
 
     // ── Sky Engine ───────────────────────────────────────────
     useEffect(() => {
@@ -685,33 +681,10 @@ export default function App() {
         setShowBookmarkModal(false);
     };
 
-    // ── WebSocket send helper ────────────────────────────────
-    // Returns false when the socket isn't open yet; whichever of the two
-    // (socket open / GPS fix) lands last does the send.
-    const sendLocation = (loc) => {
-        const sock = ws.current;
-        if (!loc || !sock || sock.readyState !== WebSocket.OPEN) return false;
-        sock.send(JSON.stringify({ action: 'update_location', lat: loc.lat, lon: loc.lon }));
-        return true;
-    };
-
-    // Look up an aircraft type we have no name for, then repaint the marker label.
-    const maybeClassify = (type) => {
-        if (!type || type === 'UNK' || AIRCRAFT_MAPPING[type]) return;
-        classifyUnknownAircraft(type).then(() => {
-            if (!planeMarkerRef.current || !flightRef.current) return;
-            const f = flightRef.current;
-            if (f.type !== type) return;
-            const { marker, makePlaneHtml } = planeMarkerRef.current;
-            marker.setIcon(L.divIcon({ html: makePlaneHtml(f.heading, f.callsign, f.type), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }));
-        });
-    };
-
     // ── Request user GPS ─────────────────────────────────────
     const requestLocation = () => {
         if (locRequesting) return;
         setLocRequesting(true);
-        setWsArmed(true);          // open the socket now, don't wait on the GPS prompt
         setStatus('REQUESTING ACCESS...');
 
         // Hard fallback — fires even if the browser permission prompt is never interacted with.
@@ -723,8 +696,6 @@ export default function App() {
 
         const done = (loc) => {
             clearTimeout(fallback);
-            userLocationRef.current = loc;   // set synchronously so onopen can read it
-            sendLocation(loc);               // no-op if the socket isn't open yet
             setUserLocation(loc);
         };
 
@@ -753,72 +724,51 @@ export default function App() {
     };
 
     // ── WebSocket lifecycle ───────────────────────────────────
-    // Opens as soon as the user taps, not when GPS resolves — the handshake and any
-    // Lambda cold start overlap with the permission prompt instead of following it.
     useEffect(() => {
-        if (!wsArmed) return;
-
-        let retry = null;
+        if (!userLocation) return;
 
         const connect = () => {
             ws.current = new WebSocket(WS_URL);
 
             ws.current.onopen = () => {
-                // If GPS already resolved, ask for a fix immediately; the backend
-                // answers this connection on the spot rather than on its next sweep.
-                setStatus(sendLocation(userLocationRef.current) ? 'SCANNING SKY...' : 'LOCATING...');
+                setStatus('SCANNING SKY...');
+                ws.current.send(JSON.stringify({
+                    action: 'update_location',
+                    lat: userLocation.lat,
+                    lon: userLocation.lon,
+                }));
             };
 
             ws.current.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 if (data.type === 'request_location') {
-                    sendLocation(userLocationRef.current);
+                    ws.current.send(JSON.stringify({
+                        action: 'update_location',
+                        lat: userLocation.lat,
+                        lon: userLocation.lon,
+                    }));
                 } else if (data.type === 'radar_update') {
-                    // Phase-1 payloads carry fresh position but may still say UNK for
-                    // details a later radar_enrich already resolved. Keep the resolved
-                    // values for the same aircraft so the card never flickers back.
-                    setFlight(prev => {
-                        const next = data.flight;
-                        if (!next) return null;
-                        if (!prev || prev.icao24 !== next.icao24) return next;
-                        const merged = { ...prev, ...next };
-                        if (next.origin === 'UNK' && prev.origin && prev.origin !== 'UNK') merged.origin = prev.origin;
-                        if (next.dest === 'UNK' && prev.dest && prev.dest !== 'UNK') merged.dest = prev.dest;
-                        if (next.type === 'UNK' && prev.type && prev.type !== 'UNK') merged.type = prev.type;
-                        if (next.airline === 'Unknown Airline' && prev.airline) merged.airline = prev.airline;
-                        if (!next.photo_url && prev.photo_url) merged.photo_url = prev.photo_url;
-                        return merged;
-                    });
+                    setFlight(data.flight);
                     setStatus(data.flight ? 'LIVE' : 'SCANNING SKIES...');
-                    maybeClassify(data.flight?.type);
-                } else if (data.type === 'radar_enrich') {
-                    // Second-phase details (route, photo, resolved type) for the plane
-                    // already on screen. Merge — never replace — so the card doesn't flicker.
-                    const patch = data.flight;
-                    if (!patch) return;
-                    setFlight(prev => {
-                        if (!prev) return prev;
-                        if (patch.icao24 && prev.icao24 && patch.icao24 !== prev.icao24) return prev;
-                        return { ...prev, ...patch };
-                    });
-                    maybeClassify(patch.type);
+                    const type = data.flight?.type;
+                    if (type && type !== 'UNK' && !AIRCRAFT_MAPPING[type]) {
+                        classifyUnknownAircraft(type).then(() => {
+                            if (!planeMarkerRef.current || !flightRef.current) return;
+                            const f = flightRef.current;
+                            if (f.type !== type) return;
+                            const { marker, makePlaneHtml } = planeMarkerRef.current;
+                            marker.setIcon(L.divIcon({ html: makePlaneHtml(f.heading, f.callsign, f.type), className: '', iconSize: [0, 0], iconAnchor: [0, 0] }));
+                        });
+                    }
                 }
             };
 
-            ws.current.onclose = () => {
-                if (wsClosedByUs.current) return;   // deliberate teardown — don't reconnect
-                retry = setTimeout(connect, 3000);
-            };
+            ws.current.onclose = () => setTimeout(connect, 3000);
         };
 
-        wsClosedByUs.current = false;
         connect();
-        return () => {
-            wsClosedByUs.current = true;
-            if (retry) clearTimeout(retry);
-            ws.current?.close();
-        };
-    }, [wsArmed]);
+        return () => ws.current?.close();
+    }, [userLocation]);
 
     // ── Imperative Leaflet map — build once per callsign ─────────
     useEffect(() => {
