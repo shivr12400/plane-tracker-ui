@@ -84,6 +84,7 @@ const getAircraftName = (code) => {
 };
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY;
 
 const HELICOPTER_CODES = new Set([
     'H60','S61','S76','EC35','EC45','EC55','EC30','AS32','H225',
@@ -841,8 +842,9 @@ export default function App() {
         });
         mapRef.current = map;
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 18, subdomains: 'abcd',
+        // CARTO stopped serving keyless raster tiles on 2026-09-25 (returns an "API KEY REQUIRED" watermark)
+        L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`, {
+            maxZoom: 18,
         }).addTo(map);
 
         const bounds = L.latLngBounds([[USER_LAT, USER_LON], [f.lat, f.lon]]);
@@ -1311,6 +1313,12 @@ export default function App() {
                                 fontFamily: 'Inter, sans-serif', letterSpacing: '1px',
                                 pointerEvents: 'none', textTransform: 'uppercase',
                             }}>LIVE AIRSPACE</div>
+                            <div style={{
+                                position: 'absolute', bottom: 8, left: 12,
+                                fontSize: '0.45rem', color: 'rgba(255,255,255,0.35)',
+                                fontFamily: 'Inter, sans-serif', letterSpacing: '0.5px',
+                                pointerEvents: 'none',
+                            }}>© CARTO © OpenStreetMap</div>
                         </div>
 
                     </div>
