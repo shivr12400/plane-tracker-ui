@@ -181,6 +181,7 @@ export default function App() {
     const flightRef       = useRef(null);   // latest flight data for the animation loop
     const userLocationRef = useRef(null);
     const animFrameRef    = useRef(null);
+    const zoomingRef      = useRef(false);
     const wsClosedByUs    = useRef(false);
 
     // ── Sky Engine ───────────────────────────────────────────
@@ -842,6 +843,14 @@ export default function App() {
         });
         mapRef.current = map;
 
+        // During an animated zoom Leaflet CSS-scales the SVG overlay pane. Redrawing
+        // the polylines mid-animation projects them at the *new* zoom inside that
+        // scaled pane, so they get scaled twice and drift off the plane. The
+        // animation loop pauses overlay updates while this flag is set.
+        zoomingRef.current = false;
+        map.on('zoomanim', () => { zoomingRef.current = true; });
+        map.on('zoomend', () => { zoomingRef.current = false; });
+
         // CARTO stopped serving keyless raster tiles on 2026-09-25 (returns an "API KEY REQUIRED" watermark)
         L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`, {
             maxZoom: 18,
@@ -969,6 +978,11 @@ export default function App() {
             const newLon = pos.lon + (degPerSec * Math.sin(headingRad) * dt) / Math.cos(pos.lat * Math.PI / 180);
 
             animPosRef.current = { lat: newLat, lon: newLon };
+
+            // Keep dead-reckoning, but leave overlays alone until the zoom settles
+            // so the marker and line animate together; the next frame catches up.
+            if (zoomingRef.current) { animFrameRef.current = requestAnimationFrame(tick); return; }
+
             planeMarkerRef.current.marker.setLatLng([newLat, newLon]);
 
             const ul = userLocationRef.current;
