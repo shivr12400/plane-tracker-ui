@@ -74,7 +74,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .site-nav a[aria-current='page'] { color: var(--accent); border-bottom-color: var(--accent); }
 
 /* ── Hero (home) ────────────────────────────────────────── */
-.hero { padding: 42px 0 10px; }
+.hero { padding-top: 42px; padding-bottom: 10px; }
 .hero-copy { max-width: 40rem; }
 .hero h1 {
   font-size: clamp(2.1rem, 5.2vw, 3.3rem);
@@ -111,6 +111,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* ── Sections & prose ───────────────────────────────────── */
 section.band { padding: 62px 0; border-top: 1px solid var(--line-soft); }
 section.band:first-of-type { border-top: none; }
+section.band h1 {
+  font-size: clamp(2rem, 4.6vw, 2.7rem); line-height: 1.12; letter-spacing: -1.2px;
+  color: var(--ink-strong); margin: 0 0 14px; font-weight: 900;
+}
 
 .kicker {
   font-family: var(--mono); font-size: 0.68rem; letter-spacing: 2.4px;

@@ -9,7 +9,7 @@
 
 export const SITE = {
   name: 'AeroPine',
-  origin: 'https://aeropine.com',
+  origin: 'https://www.aeropine.com',
   tagline: 'See what is flying over you, right now',
   contact: 'hello@aeropine.com',
   adsenseClient: 'ca-pub-6581385326972363',
@@ -132,6 +132,7 @@ function footer() {
  * @param {object} page
  * @param {string} page.path      URL path, e.g. '/guides/how-adsb-works/'
  * @param {string} page.title     <title> text (without the site suffix)
+ * @param {string} [page.fullTitle] complete <title> text, used as-is
  * @param {string} page.description  meta description, 140–160 chars
  * @param {string} page.body      page markup
  * @param {boolean} [page.ads]    emit AdSense code on this page
@@ -142,7 +143,8 @@ function footer() {
 export function renderPage(page) {
   const canonical = SITE.origin + page.path;
   const title =
-    page.path === '/' ? `${SITE.name} — ${SITE.tagline}` : `${page.title} | ${SITE.name}`;
+    page.fullTitle ||
+    (page.path === '/' ? `${SITE.name} — ${SITE.tagline}` : `${page.title} | ${SITE.name}`);
   const adsense = page.ads
     ? `\n    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}" crossorigin="anonymous"></script>`
     : '';
@@ -161,9 +163,14 @@ export function renderPage(page) {
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${page.description}" />
     <meta property="og:url" content="${canonical}" />
-    <meta property="og:image" content="${SITE.origin}/logo.png" />
+    <meta property="og:image" content="${SITE.origin}/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AeroPine logo" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />

@@ -89,6 +89,11 @@ const NUM = { fontVariantNumeric: 'tabular-nums' };
 const SANS = "'Barlow', system-ui, sans-serif";
 const DISPLAY = "'Barlow Condensed', 'Barlow', system-ui, sans-serif";
 
+// The home page embeds the radar in a framed widget (<div id="root" data-mode="widget">,
+// see site/content/home.mjs). There it fills its frame instead of the viewport, and the
+// page's own H1 is the heading, so the splash title drops to a plain element.
+const IS_WIDGET = typeof document !== 'undefined' && document.getElementById('root')?.dataset.mode === 'widget';
+
 const getAircraftName = (code) => {
     if (!code || code === 'UNK') return 'Private Aircraft';
     return AIRCRAFT_MAPPING[code] || `Aircraft Type: ${code}`;
@@ -740,7 +745,7 @@ export default function App() {
         const handleMouseMove = (e) => { tmx = (e.clientX/innerWidth - 0.5)*2; tmy = (e.clientY/innerHeight - 0.5)*2; };
         document.addEventListener('mousemove', handleMouseMove);
 
-        function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+        function resize() { const r = canvas.getBoundingClientRect(); canvas.width = r.width || innerWidth; canvas.height = r.height || innerHeight; }
         window.addEventListener('resize', resize);
         resize();
 
@@ -1510,7 +1515,7 @@ export default function App() {
     `;
 
     return (
-        <div style={{ width: '100vw', height: '100vh', background: '#000', color: 'white', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ width: IS_WIDGET ? '100%' : '100vw', height: IS_WIDGET ? '100%' : '100vh', background: '#000', color: 'white', position: 'relative', overflow: 'hidden' }}>
             <style>{globalStyles}</style>
 
             {/* Immersive sky background */}
@@ -1536,7 +1541,7 @@ export default function App() {
                             <SplashFlight />
                         </div>
 
-                        <h1 style={{ color: '#fff', fontSize: '2.6rem', lineHeight: 1, margin: '0 0 12px', fontWeight: 800, letterSpacing: '1px', fontFamily: DISPLAY }}>FLIGHT RADAR</h1>
+                        {(() => { const Title = IS_WIDGET ? 'p' : 'h1'; return <Title style={{ color: '#fff', fontSize: '2.6rem', lineHeight: 1, margin: '0 0 12px', fontWeight: 800, letterSpacing: '1px', fontFamily: DISPLAY }}>FLIGHT RADAR</Title>; })()}
                         <p style={{ color: INK_MUTED, fontSize: '0.75rem', letterSpacing: '1.5px', margin: '0 0 30px', fontFamily: SANS }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
 
                         <button

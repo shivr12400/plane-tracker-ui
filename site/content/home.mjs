@@ -12,7 +12,8 @@ export const faqs = [
   {
     q: 'Do you store my location?',
     a: `Your coordinates are held only while your connection is open, so the server knows where to point
-        the next search, and they are deleted when you close the tab. We do not build a location history,
+        the next search, and they are deleted when you close the tab (or automatically within about a day
+        if the connection drops without closing cleanly). We do not build a location history,
         and we never attach a coordinate to a name or an email address. The full detail is in our
         <a href="/privacy/">privacy policy</a>.`,
   },
@@ -64,6 +65,7 @@ const faqHtml = faqs
 export const page = {
   path: '/',
   title: 'AeroPine',
+  fullTitle: 'What Plane Is Flying Over Me? Live Overhead Plane Finder | AeroPine',
   description:
     'AeroPine shows the aircraft passing over your exact location right now — type, operator, route, altitude and speed — plus plain-English guides to reading what you see in the sky.',
   ads: true,
