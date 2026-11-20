@@ -166,7 +166,7 @@ export function renderPage(page) {
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/site.css" />${adsense}${page.appTags || ''}${
       page.jsonLd ? `\n    <script type="application/ld+json">${page.jsonLd}</script>` : ''
     }

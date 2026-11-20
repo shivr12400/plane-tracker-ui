@@ -78,6 +78,17 @@ const AIRCRAFT_MAPPING = {
     'P8': 'Boeing P-8 Poseidon', 'E3TF': 'Boeing E-3 Sentry',
 };
 
+// Shared type roles for the flight card + overlays. Labels sit at 10px minimum and
+// use a teal-tinted muted ink (matches --muted in public/site.css) so they clear
+// contrast on the near-black card instead of fading into it.
+const INK_MUTED = '#8fa0a0';
+const LABEL = { fontSize: '0.625rem', color: INK_MUTED, letterSpacing: '1.2px', textTransform: 'uppercase', fontWeight: 500, marginTop: '3px' };
+const NUM = { fontVariantNumeric: 'tabular-nums' };
+// Barlow carries the interface; its condensed cut is the "departures board" voice
+// reserved for identity: the wordmark, status line, callsign and airport codes.
+const SANS = "'Barlow', system-ui, sans-serif";
+const DISPLAY = "'Barlow Condensed', 'Barlow', system-ui, sans-serif";
+
 const getAircraftName = (code) => {
     if (!code || code === 'UNK') return 'Private Aircraft';
     return AIRCRAFT_MAPPING[code] || `Aircraft Type: ${code}`;
@@ -159,6 +170,414 @@ async function classifyUnknownAircraft(code) {
     }
 }
 
+// ── Splash: an airliner cruising through layered cloud ───────
+// The camera tracks the plane, so the world (cloud, contrail, air streaks) moves
+// left past it. Pitch follows the climb rate, so the gentle bob reads as flight
+// rather than a hover. Three cloud depths give parallax; the nearest passes in
+// front of the plane.
+// Boeing 737-800 in side profile, nose right, ~100 × 34 units centred on the wing
+// root. The cues that make it read as a 737: the long dorsal fillet running into
+// the fin, the upswept tail cone ending in the APU exhaust, the flat-bottomed
+// CFM56 nacelle hung forward of the wing, and the blended winglet.
+const B737_BODY = new Path2D(
+    'M50 1.2C49.5-2.2 45-5 38-5L-12-5Q-24-5.2-30-8.5L-41-24L-47.5-24L-46-6L-51.5-3.2L-51.5-1.8L-22 5L38 5C45 5 49.5 4 50 1.2Z'
+);
+const B737_STAB = new Path2D('M-35-0.6L-44-0.6L-50.5-2.4L-46.5-2.9Z');
+const B737_WING = new Path2D('M14 4.4L-8 4.4L-21.5 2.4L-13.5 1.4Z');
+const B737_FAIRING = new Path2D('M18 4.6Q4 7.6-12 4.6Z');   // wing-to-body fairing under the belly
+const B737_WINGLET = new Path2D('M-13.8 1.6Q-16.4-1.6-19.6-7.6L-22-7.6Q-20-1.4-20.4 2.3Z');
+const B737_PYLON = new Path2D('M16 4.8L7 4.8L4.5 3.6L13 3.6Z');
+const B737_NACELLE = new Path2D('M20.5 4.6Q22.3 4.6 22.3 7.3Q22.3 10.3 20 10.5L9.5 10.5Q6.8 10.3 5.2 9L3.2 8.2L3.6 6.8L7.5 4.6Z');
+const B737_EXHAUST = new Path2D('M3.6 6.8L0.6 7.4L3.2 8.2Z');
+const B737_COCKPIT = new Path2D('M41.2-2.7L45.9-2.7L47.8-0.9L41.2-0.9Z');
+
+function SplashFlight({ height = 176 }) {
+    const wrapRef = useRef(null);
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const wrap = wrapRef.current, canvas = canvasRef.current;
+        if (!wrap || !canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        let W = 0;
+        const H = height;
+        const resize = () => {
+            W = wrap.clientWidth;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        };
+        resize();
+        const ro = new ResizeObserver(resize); ro.observe(wrap);
+
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        const AIRSPEED = 130;   // px/s the air (and everything in it) streams past
+        const makeCloud = (layer, x) => {
+            const base = [
+                { y: [0.66, 0.9], s: 0.55, a: 0.08 },   // far: low, small, faint
+                { y: [0.6, 0.98], s: 0.85, a: 0.11 },   // mid
+                { y: [0.42, 1.0], s: 1.2, a: 0.13 },   // near: passes in front of the plane
+            ][layer];
+            const n = Math.floor(rnd(4, 7));
+            return {
+                layer, x: x ?? rnd(0, 1), y: rnd(...base.y), a: base.a * rnd(0.7, 1.15),
+                puffs: Array.from({ length: n }, (_, k) => ({ dx: (k - n / 2) * 30 * base.s + rnd(-10, 10), dy: rnd(-7, 4) * base.s, r: rnd(14, 26) * base.s })),
+            };
+        };
+        const LAYER_SPEED = [0.12, 0.35, 0.9];   // fraction of airspeed, by depth
+        const clouds = [0, 0, 0, 1, 1, 2].map(l => makeCloud(l));
+        const streaks = Array.from({ length: 7 }, () => ({ x: rnd(0, 1), y: rnd(0.1, 0.9), len: rnd(18, 46), a: rnd(0.05, 0.14) }));
+        const trail = [];   // contrail points in screen space; they drift left with the air
+
+        const drawCloud = (c) => {
+            const cx = c.x * (W + 160) - 80, cy = c.y * H;
+            c.puffs.forEach(p => {
+                const g = ctx.createRadialGradient(cx + p.dx, cy + p.dy, 0, cx + p.dx, cy + p.dy, p.r);
+                g.addColorStop(0, `rgba(225,245,255,${c.a})`);
+                g.addColorStop(0.55, `rgba(210,238,250,${c.a * 0.55})`);
+                g.addColorStop(1, 'rgba(200,235,250,0)');
+                // Stretched horizontally: at cruise altitude cloud reads as layered stratus, not puffs.
+                ctx.save();
+                ctx.translate(cx + p.dx, cy + p.dy); ctx.scale(2.6, 1); ctx.translate(-(cx + p.dx), -(cy + p.dy));
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx + p.dx, cy + p.dy, p.r, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            });
+        };
+
+        // Plane pose at time t (s): eases in from off-left, then cruises with a slow climb/descend.
+        const ENTER = 1.6;
+        const pose = (t) => {
+            const e = Math.min(t / ENTER, 1), ease = 1 - Math.pow(1 - e, 4);
+            const x = -70 + (W * 0.44 + 70) * ease;
+            const y = H * 0.44 + Math.sin(t * 0.9) * 9 + Math.sin(t * 2.3) * 1.6 + (1 - ease) * 26;
+            return { x, y };
+        };
+
+        let raf, t0 = null, last = 0;
+        const step = (t, dt) => {
+            const p = pose(t), p2 = pose(t + 0.05);
+            const pitch = Math.atan2(p2.y - p.y, 0.05 * AIRSPEED + (p2.x - p.x));   // nose follows the flight path
+            // Advect the world
+            clouds.forEach((c, i) => {
+                c.x -= (AIRSPEED * LAYER_SPEED[c.layer] * dt) / (W + 160);
+                if (c.x < -0.08) clouds[i] = makeCloud(c.layer, 1.08);
+            });
+            streaks.forEach(s => { s.x -= (AIRSPEED * 1.6 * dt) / W; if (s.x < -0.1) { s.x = 1.1; s.y = rnd(0.1, 0.9); } });
+            trail.forEach(q => { q.x -= AIRSPEED * dt; q.age += dt; });   // the trail hangs in the air mass
+            // Contrail forms a little behind the engine exhaust
+            const sc = Math.min(W / 300, 1.3);
+            const ex = 0.6 * sc, ey = 7.4 * sc;   // engine exhaust
+            trail.push({ x: p.x + ex * Math.cos(pitch) - ey * Math.sin(pitch), y: p.y + ex * Math.sin(pitch) + ey * Math.cos(pitch), age: 0 });
+            while (trail.length && (trail[0].age > 2.4 || trail[0].x < -20)) trail.shift();
+            return { p, pitch, sc };
+        };
+
+        const render = ({ p, pitch, sc }) => {
+            ctx.clearRect(0, 0, W, H);
+            clouds.filter(c => c.layer < 2).forEach(drawCloud);
+
+            // Air streaks: speed, not decoration; very faint.
+            ctx.lineWidth = 1;
+            streaks.forEach(s => {
+                const x = s.x * W, y = s.y * H;
+                const g = ctx.createLinearGradient(x, y, x + s.len, y);
+                g.addColorStop(0, 'rgba(0,255,204,0)'); g.addColorStop(1, `rgba(0,255,204,${s.a})`);
+                ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + s.len, y); ctx.stroke();
+            });
+
+            // Contrail: a few soft passes along one smooth path. Each pass fades from
+            // nothing at the old end to full just behind the engine (with a short gap
+            // where vapor hasn't condensed yet); wider passes are fainter, so it spreads.
+            if (trail.length > 2) {
+                const head = trail[trail.length - 1], tail = trail[0];
+                ctx.beginPath();
+                ctx.moveTo(tail.x, tail.y + 3);
+                for (let i = 1; i < trail.length; i++) {
+                    const q = trail[i], k = q.age / 2.4;
+                    ctx.lineTo(q.x, q.y + k * 3);   // the old vapor sinks slightly as it spreads
+                }
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                [[9, 0.05], [4.5, 0.11], [1.6, 0.4]].forEach(([w, a]) => {
+                    const g = ctx.createLinearGradient(tail.x, 0, head.x, 0);
+                    g.addColorStop(0, 'rgba(235,250,255,0)');
+                    g.addColorStop(0.6, `rgba(235,250,255,${a * 0.55})`);
+                    g.addColorStop(0.93, `rgba(235,250,255,${a})`);
+                    g.addColorStop(1, 'rgba(235,250,255,0)');
+                    ctx.strokeStyle = g; ctx.lineWidth = w; ctx.stroke();
+                });
+            }
+
+            // Boeing 737
+            ctx.save();
+            ctx.translate(p.x, p.y); ctx.rotate(pitch); ctx.scale(sc, sc);
+            ctx.shadowColor = 'rgba(0,255,204,0.5)'; ctx.shadowBlur = 16;
+            ctx.fillStyle = '#00e6b8';
+            ctx.fill(B737_STAB);
+            ctx.fillStyle = '#00ffcc';
+            ctx.fill(B737_BODY);
+            ctx.shadowBlur = 0;
+            // Shading: highlight along the crown, darker belly
+            const body = ctx.createLinearGradient(0, -5, 0, 5);
+            body.addColorStop(0, 'rgba(255,255,255,0.38)'); body.addColorStop(0.4, 'rgba(255,255,255,0)'); body.addColorStop(1, 'rgba(0,45,38,0.4)');
+            ctx.fillStyle = body; ctx.fill(B737_BODY);
+            ctx.fillStyle = '#00e6b8'; ctx.fill(B737_FAIRING);
+            ctx.fillStyle = '#009c7c'; ctx.fill(B737_WING);
+            ctx.fillStyle = '#00a885'; ctx.fill(B737_PYLON);
+            const nac = ctx.createLinearGradient(0, 4.6, 0, 10.5);
+            nac.addColorStop(0, '#00e0b4'); nac.addColorStop(1, '#008a6e');
+            ctx.fillStyle = nac; ctx.fill(B737_NACELLE);
+            ctx.fillStyle = '#006652'; ctx.fill(B737_EXHAUST);
+            ctx.fillStyle = 'rgba(0,50,42,0.5)'; ctx.fillRect(20.6, 5.2, 0.9, 4.8);   // inlet lip shadow
+            ctx.fillStyle = '#00a382'; ctx.fill(B737_WINGLET);
+            ctx.strokeStyle = 'rgba(180,255,240,0.5)'; ctx.lineWidth = 0.3; ctx.stroke(B737_WINGLET);
+            // Windows, cockpit, doors
+            ctx.fillStyle = 'rgba(0,45,38,0.6)';
+            for (let wx = -20; wx <= 32; wx += 2.6) {
+                if (wx > 2 && wx < 6) continue;   // over-wing exit
+                ctx.beginPath(); ctx.ellipse(wx, -1.9, 0.55, 0.8, 0, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.fill(B737_COCKPIT);
+            ctx.strokeStyle = 'rgba(0,45,38,0.45)'; ctx.lineWidth = 0.35;
+            [[35, -3.6, 2.2, 6.6], [-24.5, -3.6, 2, 6.2], [3, -3.2, 1.6, 3.4]].forEach(([x, y, w, h]) => ctx.strokeRect(x, y, w, h));
+            // Lights: white strobe on the tail cone (double flash), red beacon on the crown
+            const now = performance.now() / 1000;
+            const ph = now % 1.6;
+            const flash = (x, y, r, rgb) => {
+                const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+                g.addColorStop(0, `rgba(${rgb},0.95)`); g.addColorStop(1, `rgba(${rgb},0)`);
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            };
+            if (ph < 0.06 || (ph > 0.16 && ph < 0.22)) flash(-51.5, -2.5, 8, '255,255,255');
+            if ((now % 1.1) < 0.12) flash(-2, -5.4, 4.5, '255,60,60');
+            ctx.restore();
+
+            clouds.filter(c => c.layer === 2).forEach(drawCloud);
+        };
+
+        if (reduced) {
+            // One composed still: plane at cruise with a fully formed contrail behind it.
+            let state;
+            for (let i = 0; i <= 240; i++) state = step(ENTER + i / 60, 1 / 60);
+            render(state);
+        } else {
+            const frame = (now) => {
+                if (t0 === null) { t0 = now; last = now; }
+                const dt = Math.min((now - last) / 1000, 0.05); last = now;
+                render(step((now - t0) / 1000, dt));
+                raf = requestAnimationFrame(frame);
+            };
+            raf = requestAnimationFrame(frame);
+        }
+        return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+    }, [height]);
+
+    return (
+        <div ref={wrapRef} aria-hidden="true" style={{
+            position: 'relative', width: '100%', height,
+            // Feather all four edges so cloud and contrail dissolve instead of clipping.
+            WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent)',
+            WebkitMaskComposite: 'source-in',
+            maskImage: 'linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent)',
+            maskComposite: 'intersect',
+        }}>
+            <canvas ref={canvasRef} style={{ display: 'block' }} />
+        </div>
+    );
+}
+
+// ── Scanning screen: radar scope + spotting prompts ──────────
+// One revolution every 4.8 s, the rotation period of a real airport surveillance
+// radar. Drawn on canvas so returns can fade like phosphor after the sweep passes.
+const SWEEP_PERIOD_MS = 4800;
+const SWEEP_TRAIL = Math.PI * 0.55;   // angular length of the afterglow wedge
+
+function RadarScope({ size = 248, bearingRef }) {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = size * dpr; canvas.height = size * dpr;
+        ctx.scale(dpr, dpr);
+
+        const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        const C = size / 2, R = size / 2 - 14;   // leave room for the bearing ring
+        const TAU = Math.PI * 2;
+
+        // Ground clutter: faint speckles that light up as the beam crosses them and
+        // decay afterwards. Deliberately not plane-shaped; nothing is found yet.
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        const makeSpeck = () => ({ a: rnd(0, TAU), r: Math.sqrt(Math.random()) * 0.92 + 0.04, s: rnd(0.6, 1.6), k: rnd(0.25, 0.75) });
+        const specks = Array.from({ length: 70 }, makeSpeck);
+
+        const hasConic = typeof ctx.createConicGradient === 'function';
+        let raf, start = performance.now(), lastAngle = 0;
+
+        const draw = (now) => {
+            // Bearing 0 = north (up), clockwise, like a real scope.
+            const bearing = reduced ? 0.9 : (((now - start) % SWEEP_PERIOD_MS) / SWEEP_PERIOD_MS) * TAU;
+            const canvasAngle = bearing - Math.PI / 2;
+            ctx.clearRect(0, 0, size, size);
+
+            // Scope face
+            const face = ctx.createRadialGradient(C, C, 0, C, C, R);
+            face.addColorStop(0, 'rgba(0,60,50,0.55)');
+            face.addColorStop(0.7, 'rgba(0,28,26,0.55)');
+            face.addColorStop(1, 'rgba(0,12,14,0.75)');
+            ctx.fillStyle = face; ctx.beginPath(); ctx.arc(C, C, R, 0, TAU); ctx.fill();
+
+            // Range rings + crosshair
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 4]);
+            ctx.strokeStyle = 'rgba(0,255,204,0.16)';
+            [1 / 3, 2 / 3].forEach(f => { ctx.beginPath(); ctx.arc(C, C, R * f, 0, TAU); ctx.stroke(); });
+            ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(0,255,204,0.09)';
+            ctx.beginPath(); ctx.moveTo(C - R, C); ctx.lineTo(C + R, C); ctx.moveTo(C, C - R); ctx.lineTo(C, C + R); ctx.stroke();
+
+            // Bezel + bearing ticks (every 5°, long every 30°)
+            ctx.strokeStyle = 'rgba(0,255,204,0.45)';
+            ctx.beginPath(); ctx.arc(C, C, R, 0, TAU); ctx.stroke();
+            for (let d = 0; d < 360; d += 5) {
+                const a = (d * Math.PI) / 180 - Math.PI / 2;
+                const long = d % 30 === 0;
+                const r1 = R + 2, r2 = R + (long ? 8 : 4);
+                ctx.strokeStyle = long ? 'rgba(0,255,204,0.6)' : 'rgba(0,255,204,0.25)';
+                ctx.beginPath(); ctx.moveTo(C + Math.cos(a) * r1, C + Math.sin(a) * r1); ctx.lineTo(C + Math.cos(a) * r2, C + Math.sin(a) * r2); ctx.stroke();
+            }
+
+            // Afterglow wedge trailing the beam
+            ctx.save();
+            ctx.beginPath(); ctx.moveTo(C, C); ctx.arc(C, C, R - 1, canvasAngle - SWEEP_TRAIL, canvasAngle); ctx.closePath(); ctx.clip();
+            if (hasConic) {
+                const g = ctx.createConicGradient(canvasAngle - SWEEP_TRAIL, C, C);
+                const f = SWEEP_TRAIL / TAU;
+                g.addColorStop(0, 'rgba(0,255,204,0)');
+                g.addColorStop(f * 0.75, 'rgba(0,255,204,0.10)');
+                g.addColorStop(f, 'rgba(0,255,204,0.32)');
+                g.addColorStop(Math.min(f + 0.001, 1), 'rgba(0,255,204,0)');
+                ctx.fillStyle = g;
+            } else {
+                ctx.fillStyle = 'rgba(0,255,204,0.08)';
+            }
+            ctx.fillRect(0, 0, size, size);
+            ctx.restore();
+
+            // Leading edge of the beam
+            const bx = C + Math.cos(canvasAngle) * (R - 1), by = C + Math.sin(canvasAngle) * (R - 1);
+            const edge = ctx.createLinearGradient(C, C, bx, by);
+            edge.addColorStop(0, 'rgba(180,255,240,0.15)');
+            edge.addColorStop(1, 'rgba(180,255,240,0.9)');
+            ctx.strokeStyle = edge; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(C, C); ctx.lineTo(bx, by); ctx.stroke();
+
+            // Clutter returns: bright on the beam, decaying through the trail.
+            // A speck the beam just crossed occasionally relocates, so the field shimmers.
+            specks.forEach((p, i) => {
+                const behind = ((bearing - p.a) % TAU + TAU) % TAU;
+                if (!reduced && behind < (bearing - lastAngle + TAU) % TAU && Math.random() < 0.18) specks[i] = makeSpeck();
+                const glow = behind < Math.PI * 1.4 ? Math.pow(1 - behind / (Math.PI * 1.4), 2.2) : 0;
+                if (glow < 0.02) return;
+                const a = p.a - Math.PI / 2;
+                const x = C + Math.cos(a) * p.r * R, y = C + Math.sin(a) * p.r * R;
+                ctx.fillStyle = `rgba(120,255,225,${glow * p.k})`;
+                ctx.beginPath(); ctx.arc(x, y, p.s, 0, TAU); ctx.fill();
+            });
+            lastAngle = bearing;
+
+            if (bearingRef?.current) bearingRef.current.textContent = String(Math.round((bearing * 180) / Math.PI) % 360).padStart(3, '0');
+            if (!reduced) raf = requestAnimationFrame(draw);
+        };
+        raf = requestAnimationFrame(draw);
+        return () => cancelAnimationFrame(raf);
+    }, [size, bearingRef]);
+
+    const cardinal = { fontFamily: DISPLAY, fontSize: '0.7rem', fontWeight: 700, color: 'rgba(0,255,204,0.75)', position: 'absolute', lineHeight: 1 };
+    return (
+        <div aria-hidden="true" style={{ position: 'relative', width: size + 28, height: size + 28, margin: '0 auto' }}>
+            <canvas ref={canvasRef} style={{ position: 'absolute', left: 14, top: 14, width: size, height: size }} />
+            <span style={{ ...cardinal, top: 0, left: '50%', transform: 'translateX(-50%)' }}>N</span>
+            <span style={{ ...cardinal, bottom: 0, left: '50%', transform: 'translateX(-50%)' }}>S</span>
+            <span style={{ ...cardinal, left: 0, top: '50%', transform: 'translateY(-50%)' }}>W</span>
+            <span style={{ ...cardinal, right: 0, top: '50%', transform: 'translateY(-50%)' }}>E</span>
+            {/* You are here */}
+            <div style={{ position: 'absolute', left: '50%', top: '50%' }}>
+                <div className="fr-you-ring" />
+                <div style={{ position: 'absolute', width: 9, height: 9, borderRadius: '50%', background: '#fff', border: '2px solid #00ffcc', transform: 'translate(-50%,-50%)', boxShadow: '0 0 10px rgba(0,255,204,0.8)' }} />
+            </div>
+        </div>
+    );
+}
+
+// Fun facts to read while the scope searches. Shuffled per visit; click or tap to skip.
+const SKY_FACTS = [
+    { lead: 'That sound is old news.', line: 'From 35,000 ft, engine noise takes about half a minute to reach you. By then the plane is miles ahead of it.' },
+    { lead: 'Contrails are clouds.', line: 'Water vapor in jet exhaust freezes into ice crystals at around −40°.' },
+    { lead: 'Read the sky like a forecast.', line: 'Contrails that linger mean the air up high is humid. Ones that vanish fast mean it’s dry.' },
+    { lead: 'You’re being broadcast to.', line: 'Most planes overhead announce their position about twice a second over ADS-B. That’s how this radar finds them.' },
+    { lead: 'Runways are compass headings.', line: 'Runway 27 points to 270°, due west. Drop the last zero and that’s the number painted on the tarmac.' },
+    { lead: 'East flies odd, west flies even.', line: 'In the US, eastbound jets usually cruise at odd thousands (33,000 ft) and westbound at even ones (34,000 ft).' },
+    { lead: 'The black box is orange.', line: 'Flight recorders are painted bright orange so they’re easy to find.' },
+    { lead: 'The Wright brothers’ first flight', line: 'covered 120 feet. That’s shorter than the wingspan of a Boeing 747.' },
+    { lead: 'Six million parts.', line: 'That’s roughly what goes into a single Boeing 747.' },
+    { lead: 'Pilots eat different meals.', line: 'Captain and first officer are often served separate dishes, so one bad meal can’t take out both.' },
+    { lead: 'Tomato juice tastes better up there.', line: 'Dry cabin air at altitude dulls your sense of salt and sweet by around a third.' },
+    { lead: 'Look for the tiny hole', line: 'in a plane window. It balances the pressure between the panes so the outer one takes the load.' },
+    { lead: 'Lightning is routine.', line: 'An airliner is struck about once a year. The current flows over the skin and out again.' },
+    { lead: 'One engine is enough.', line: 'Twin-engine jets are certified to fly for hours on a single engine.' },
+    { lead: 'Speedbird, Cactus, Shamrock.', line: 'Real radio callsigns for British Airways, American and Aer Lingus.' },
+    { lead: 'Air Force One isn’t a plane.', line: 'It’s the callsign for any Air Force aircraft carrying the US president.' },
+    { lead: 'Mayday is French.', line: 'It comes from “m’aidez”: help me.' },
+    { lead: 'Y means Canada.', line: 'Nearly every major Canadian airport code starts with Y, like YYZ for Toronto and YVR for Vancouver.' },
+    { lead: 'Red on the left, green on the right.', line: 'Aircraft wingtip lights follow the same rule as ships, so you can tell which way one is heading at night.' },
+    { lead: 'Jet streams are free speed.', line: 'A strong tailwind up high can add over 150 mph to an eastbound flight’s ground speed.' },
+];
+
+const FACT_MS = 8000;
+
+function SkyFacts() {
+    const [facts] = useState(() => {
+        const a = [...SKY_FACTS];
+        for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; }
+        return a;
+    });
+    const [i, setI] = useState(0);
+    useEffect(() => {
+        const id = setTimeout(() => setI(n => (n + 1) % facts.length), FACT_MS);
+        return () => clearTimeout(id);
+    }, [i, facts.length]);
+    const f = facts[i];
+    return (
+        <button
+            type="button"
+            onClick={() => setI(n => (n + 1) % facts.length)}
+            aria-label={`${f.lead} ${f.line} Next fact`}
+            style={{ all: 'unset', cursor: 'pointer', display: 'block', width: '100%', borderRadius: 12, padding: '2px 4px', boxSizing: 'border-box' }}
+        >
+            <div style={{ minHeight: '4.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <p key={i} className="fr-prompt" style={{ margin: '0 auto', maxWidth: '32ch', fontFamily: SANS, fontSize: '0.98rem', lineHeight: 1.45, color: 'rgba(255,255,255,0.86)', textWrap: 'balance' }}>
+                    <span style={{ color: '#00ffcc', fontWeight: 600 }}>{f.lead}</span> {f.line}
+                </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, fontFamily: SANS, fontSize: '0.625rem', letterSpacing: '1.2px', color: INK_MUTED, ...NUM }}>
+                <span>{String(i + 1).padStart(2, '0')} / {facts.length}</span>
+                <span style={{ flex: 1, height: 2, borderRadius: 1, background: 'rgba(0,255,204,0.14)', overflow: 'hidden' }}>
+                    <span key={i} className="fr-fact-timer" style={{ display: 'block', height: '100%', background: '#00ffcc', animationDuration: `${FACT_MS}ms` }} />
+                </span>
+                <span>NEXT</span>
+            </div>
+        </button>
+    );
+}
+
+const fmtCoord = (v, pos, neg) => `${Math.abs(v).toFixed(4)}° ${v >= 0 ? pos : neg}`;
+// Status strings arrive shouty and with trailing dots; the scope already says "working".
+const scanLabel = (s) => (s || 'SCANNING SKY').replace(/\.+$/, '').replace('SCANNING SKIES', 'SCANNING SKY');
+
 export default function App() {
     const [flight, setFlight]           = useState(null);
     const [status, setStatus]           = useState('SYSTEM READY');
@@ -183,6 +602,7 @@ export default function App() {
     const animFrameRef    = useRef(null);
     const zoomingRef      = useRef(false);
     const wsClosedByUs    = useRef(false);
+    const bearingRef      = useRef(null);
 
     // ── Sky Engine ───────────────────────────────────────────
     useEffect(() => {
@@ -681,6 +1101,13 @@ export default function App() {
         };
     };
 
+    useEffect(() => {
+        if (!showBookmarkModal) return;
+        const onKey = (e) => { if (e.key === 'Escape') setShowBookmarkModal(false); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [showBookmarkModal]);
+
     const confirmBookmarked = () => {
         localStorage.setItem('site_bookmarked', 'true');
         setHasBookmark(true);
@@ -726,16 +1153,18 @@ export default function App() {
         const done = (loc) => {
             clearTimeout(fallback);
             userLocationRef.current = loc;   // set synchronously so onopen can read it
-            sendLocation(loc);               // no-op if the socket isn't open yet
+            const sent = sendLocation(loc);  // no-op if the socket isn't open yet
             setUserLocation(loc);
+            return sent;
         };
 
         if ('geolocation' in navigator) {
             try {
                 navigator.geolocation.getCurrentPosition(
                     ({ coords: { latitude, longitude } }) => {
-                        done({ lat: latitude, lon: longitude });
-                        setStatus('CONNECTING...');
+                        // Socket may already be open (it was armed on tap); if the fix went
+                        // out, we're scanning, not connecting.
+                        setStatus(done({ lat: latitude, lon: longitude }) ? 'SCANNING SKY...' : 'CONNECTING...');
                     },
                     (err) => {
                         console.error('Location denied', err);
@@ -900,8 +1329,8 @@ export default function App() {
           <div style="
             position:absolute;top:20px;left:50%;transform:translateX(-50%);
             background:rgba(0,0,0,0.75);border:1px solid rgba(0,255,204,0.5);
-            color:#00ffcc;font-family:Inter,sans-serif;font-size:9px;font-weight:700;
-            letter-spacing:1px;padding:3px 7px;border-radius:4px;white-space:nowrap;
+            color:#00ffcc;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+            letter-spacing:1.2px;padding:3px 7px;border-radius:4px;white-space:nowrap;
             backdrop-filter:blur(4px);
           ">${callsign}</div>`;
 
@@ -916,7 +1345,7 @@ export default function App() {
         const makeDistHtml = (dist) => `
           <div style="
             background:rgba(0,0,0,0.7);border:1px solid rgba(0,255,204,0.4);
-            color:#fff;font-family:Inter,sans-serif;font-size:9px;font-weight:600;
+            color:#fff;font-family:Barlow,sans-serif;font-size:10px;font-weight:600;font-variant-numeric:tabular-nums;
             letter-spacing:1px;padding:3px 8px;border-radius:20px;white-space:nowrap;
             backdrop-filter:blur(4px);transform:translate(-50%,-50%);
           ">${dist} MI</div>`;
@@ -1014,19 +1443,6 @@ export default function App() {
       .leaflet-container { background: #0a0a0f !important; }
       .leaflet-tile { filter: saturate(0.85) brightness(0.92); }
 
-      .radar-ring {
-        border-radius: 50%;
-        border: 2px solid rgba(0,255,204,0.6);
-        position: absolute;
-        transform: translate(-50%,-50%);
-        animation: radarPulse 2s ease-out infinite;
-      }
-      .radar-ring:nth-child(2) { animation-delay: 0.7s; }
-      .radar-ring:nth-child(3) { animation-delay: 1.4s; }
-      @keyframes radarPulse {
-        0%   { width: 0;    height: 0;    opacity: 0.9; }
-        100% { width: 80px; height: 80px; opacity: 0;   }
-      }
 
       .plane-pulse {
         position: absolute;
@@ -1039,27 +1455,41 @@ export default function App() {
         100% { width: 70px; height: 70px; opacity: 0;   }
       }
 
-      @keyframes frPulse { 0%{opacity:1} 50%{opacity:0.4} 100%{opacity:1} }
 
-      @keyframes frDriftLeft {
-        0%   { transform: translateX(350px); }
-        100% { transform: translateX(-350px); }
+
+      ::selection { background: rgba(0,255,204,0.28); color: #fff; }
+      button:focus { outline: none; }
+      button:focus-visible { outline: 2px solid #00ffcc; outline-offset: 3px; }
+
+      .fr-live-dot {
+        width: 6px; height: 6px; border-radius: 50%; background: #00ffcc;
+        box-shadow: 0 0 0 0 rgba(0,255,204,0.6);
+        animation: frLiveDot 2s cubic-bezier(0.16,1,0.3,1) infinite;
       }
-      @keyframes frFlyIn {
-        0%   { transform: translateX(-150px) scale(0.5); opacity: 0; }
-        60%  { transform: translateX(15px) scale(1.05); opacity: 1; }
-        100% { transform: translateX(0) scale(1); opacity: 1; }
+      @keyframes frLiveDot {
+        0%   { box-shadow: 0 0 0 0 rgba(0,255,204,0.55); }
+        100% { box-shadow: 0 0 0 7px rgba(0,255,204,0); }
       }
-      @keyframes frFloat {
-        0%   { transform: translateY(0); }
-        50%  { transform: translateY(-8px); }
-        100% { transform: translateY(0); }
+
+      .fr-you-ring {
+        position: absolute; width: 10px; height: 10px; border-radius: 50%;
+        border: 1px solid rgba(0,255,204,0.7); transform: translate(-50%,-50%);
+        animation: frYouRing 2.4s cubic-bezier(0.16,1,0.3,1) infinite;
       }
-      @keyframes frSceneFadeOut {
-        to { opacity: 0; transform: scale(1.08); visibility: hidden; }
+      @keyframes frYouRing {
+        0%   { width: 10px; height: 10px; opacity: 0.9; }
+        100% { width: 60px; height: 60px; opacity: 0; }
       }
-      @keyframes frLogoPopIn {
-        to { opacity: 1; transform: scale(1); }
+      .fr-fact-timer { transform-origin: left; animation: frFactTimer linear both; }
+      @keyframes frFactTimer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+      .fr-prompt { animation: frPromptIn 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+      @keyframes frPromptIn {
+        from { opacity: 0; transform: translateY(6px); filter: blur(4px); }
+        to   { opacity: 1; transform: none; filter: none; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
       }
 
       @media (max-width: 480px) {
@@ -1102,45 +1532,12 @@ export default function App() {
                         width: '94%',
                         boxSizing: 'border-box',
                     }}>
-                        {/* Visual area */}
-                        <div style={{ position: 'relative', width: '100%', height: '180px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '25px' }}>
-
-                            {/* Plane + clouds — fades out at 5s */}
-                            <div style={{
-                                position: 'absolute', inset: 0, borderRadius: '20px', overflow: 'hidden',
-                                background: 'linear-gradient(to bottom,rgba(0,30,50,0.4),rgba(0,0,0,0))',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                animation: 'frSceneFadeOut 0.6s ease-in-out 5s forwards',
-                            }}>
-                                <svg style={{ position: 'absolute', fill: '#fff', width: '180px', top: '20%', opacity: 0.15, animation: 'frDriftLeft 8s linear infinite' }} viewBox="0 0 24 24">
-                                    <path d="M17.5 19c2.48 0 4.5-2.02 4.5-4.5S19.98 10 17.5 10c-.17 0-.34.02-.51.05C16.23 7.15 13.82 5 11 5 7.69 5 5 7.69 5 11c0 .18.01.35.04.52C2.75 11.96 1 13.78 1 16c0 2.21 1.79 4 4 4h12.5z"/>
-                                </svg>
-                                <div style={{
-                                    position: 'absolute', top: '50%', left: '50%',
-                                    width: '80px', height: '80px', margin: '-40px 0 0 -40px',
-                                    animation: 'frFlyIn 1.5s cubic-bezier(0.25,1,0.5,1) forwards, frFloat 4s ease-in-out 1.5s infinite',
-                                }}>
-                                    <svg viewBox="0 0 24 24" fill="#00ffcc" style={{ width: '100%', height: '100%', transform: 'rotate(90deg)', filter: 'drop-shadow(0 8px 14px rgba(0,255,204,0.5))' }}>
-                                        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                                    </svg>
-                                </div>
-                                <svg style={{ position: 'absolute', fill: '#fff', width: '250px', top: '55%', opacity: 0.25, animation: 'frDriftLeft 5s linear infinite', animationDelay: '-2s' }} viewBox="0 0 24 24">
-                                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-                                </svg>
-                            </div>
-
-                            {/* Logo — pops in at 5.2s */}
-                            <img src={logoImg} alt="Flight Radar" style={{
-                                position: 'absolute',
-                                width: '150px', height: '150px', objectFit: 'contain',
-                                opacity: 0, transform: 'scale(0.8)',
-                                filter: 'drop-shadow(0 0 20px rgba(0,255,204,0.5))',
-                                animation: 'frLogoPopIn 0.8s cubic-bezier(0.25,1,0.5,1) 5.2s forwards',
-                            }} />
+                        <div style={{ margin: '-14px -20px 22px' }}>
+                            <SplashFlight />
                         </div>
 
-                        <h1 style={{ color: '#fff', fontSize: '2rem', margin: '0 0 10px', fontWeight: 900, letterSpacing: '2px', fontFamily: 'Inter, system-ui, sans-serif' }}>FLIGHT RADAR</h1>
-                        <p style={{ color: '#888', fontSize: '0.75rem', letterSpacing: '1px', margin: '0 0 30px', fontFamily: 'Inter, system-ui, sans-serif' }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
+                        <h1 style={{ color: '#fff', fontSize: '2.6rem', lineHeight: 1, margin: '0 0 12px', fontWeight: 800, letterSpacing: '1px', fontFamily: DISPLAY }}>FLIGHT RADAR</h1>
+                        <p style={{ color: INK_MUTED, fontSize: '0.75rem', letterSpacing: '1.5px', margin: '0 0 30px', fontFamily: SANS }}>LOCAL AIRSPACE MONITORING SYSTEM</p>
 
                         <button
                             onClick={requestLocation}
@@ -1159,13 +1556,13 @@ export default function App() {
                                 letterSpacing: '1px',
                                 transition: 'all 0.3s ease',
                                 boxShadow: locRequesting ? '0 0 20px rgba(0,255,204,0.3)' : (btnHovered ? '0 0 25px rgba(0,255,204,0.6)' : '0 0 15px rgba(0,255,204,0.2)'),
-                                fontFamily: 'Inter, system-ui, sans-serif',
+                                fontFamily: SANS,
                                 opacity: locRequesting ? 0.7 : 1,
                             }}
                         >
                             {locRequesting ? 'REQUESTING ACCESS...' : 'ALLOW LOCATION ACCESS'}
                         </button>
-                        <p style={{ marginTop: '20px', color: '#444', fontSize: '0.6rem', letterSpacing: '1px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                        <p style={{ margin: '20px auto 0', maxWidth: '30ch', color: '#6f7d7c', fontSize: '0.625rem', lineHeight: 1.6, letterSpacing: '1px', fontFamily: SANS }}>
                             LOCATION DATA IS ONLY USED TO FIND AIRCRAFT NEAR YOU
                         </p>
                     </div>
@@ -1175,42 +1572,38 @@ export default function App() {
                     <div style={{
                         textAlign: 'center',
                         background: 'rgba(0,0,0,0.6)',
-                        padding: '40px 20px',
+                        padding: '28px 22px 26px',
                         borderRadius: '30px',
                         backdropFilter: 'blur(12px)',
                         WebkitBackdropFilter: 'blur(12px)',
                         maxWidth: '420px',
                         width: '94%',
                         boxSizing: 'border-box',
-                        border: '1px solid #222',
+                        border: '1px solid rgba(0,255,204,0.14)',
                     }}>
-                        <div style={{
-                            width: '140px', height: '140px',
-                            margin: '0 auto 20px',
-                            borderRadius: '18px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            animation: 'frPulse 1.5s ease-in-out infinite',
-                        }}>
-                            <img src={logoImg} alt="Scanning..." style={{
-                                width: '120px', height: '120px', objectFit: 'contain',
-                                filter: 'drop-shadow(0 0 16px rgba(0,255,204,0.5))',
-                            }} />
-                        </div>
+                        <RadarScope bearingRef={bearingRef} />
 
-                        <h2 style={{
+                        <h2 aria-live="polite" style={{
                             color: '#00ffcc',
-                            fontSize: '1.6rem',
-                            fontWeight: 900,
-                            letterSpacing: '1px',
-                            fontFamily: 'Inter, system-ui, sans-serif',
-                            animation: 'frPulse 1.5s ease-in-out infinite',
-                            margin: '0 0 8px',
+                            fontSize: '1.5rem',
+                            fontWeight: 700,
+                            letterSpacing: '2px',
+                            fontFamily: DISPLAY,
+                            margin: '18px 0 4px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
                         }}>
-                            {status || 'SCANNING SKY...'}
+                            <span className="fr-live-dot" />
+                            {scanLabel(status)}
                         </h2>
-                        <p style={{ color: '#555', fontSize: '0.8rem', fontFamily: 'Inter, system-ui, sans-serif', margin: 0 }}>
-                            {userLocation ? `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}` : 'Initializing...'}
+                        <p style={{ color: INK_MUTED, fontSize: '0.75rem', letterSpacing: '1px', fontFamily: SANS, margin: '0 0 22px', ...NUM }}>
+                            {fmtCoord(userLocation.lat, 'N', 'S')} · {fmtCoord(userLocation.lon, 'E', 'W')}
+                            <span style={{ color: 'rgba(0,255,204,0.35)', margin: '0 8px' }}>|</span>
+                            BRG <span ref={bearingRef}>000</span>°
                         </p>
+
+                        <div style={{ borderTop: '1px solid rgba(0,255,204,0.12)', paddingTop: '20px' }}>
+                            <SkyFacts />
+                        </div>
 
                         {(isMobile() || !hasBookmark) && (
                             <div style={{ marginTop: '20px' }}>
@@ -1226,7 +1619,7 @@ export default function App() {
                                         borderRadius: '50px',
                                         cursor: 'pointer',
                                         letterSpacing: '1.5px',
-                                        fontFamily: 'Inter, system-ui, sans-serif',
+                                        fontFamily: SANS,
                                         transition: 'all 0.2s ease',
                                         width: '100%',
                                     }}
@@ -1246,21 +1639,21 @@ export default function App() {
                         background: 'rgba(15,15,15,0.97)', borderRadius: '28px',
                         border: '1px solid rgba(0,255,204,0.3)', boxSizing: 'border-box',
                         boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
-                        fontFamily: 'Inter, system-ui, sans-serif',
+                        fontFamily: SANS,
                     }}>
                         {/* Header: callsign + airline + logo */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center', gap: '10px' }}>
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '1.8rem', fontWeight: 900, lineHeight: 1, color: '#fff' }}>{flight.callsign}</div>
-                                <div style={{ fontSize: '0.8rem', color: '#00ffcc', marginTop: '5px' }}>{flight.airline}</div>
+                                <div style={{ fontFamily: DISPLAY, fontSize: '2.3rem', fontWeight: 800, lineHeight: 1, color: '#fff', letterSpacing: '0.5px', ...NUM }}>{flight.callsign}</div>
+                                <div style={{ fontSize: '0.85rem', color: '#00ffcc', marginTop: '6px', fontWeight: 500 }}>{flight.airline}</div>
                             </div>
-                            <img src={logoImg} alt="Logo" style={{ width: '110px', height: '60px', objectFit: 'contain', flexShrink: 0 }} />
+                            <img src={logoImg} alt="" aria-hidden="true" style={{ width: '64px', height: '44px', objectFit: 'contain', flexShrink: 0, opacity: 0.9 }} />
                         </div>
 
                         {/* Aircraft badge */}
                         <div style={{ textAlign: 'center', marginBottom: '15px', background: 'rgba(0,255,204,0.1)', padding: '8px', borderRadius: '12px' }}>
                             <div style={{ fontSize: '1rem', color: '#00ffcc', fontWeight: 'bold' }}>{getAircraftName(flight.type)}</div>
-                            <div style={{ fontSize: '0.5rem', color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>AIRCRAFT EQUIPMENT</div>
+                            <div style={LABEL}>Aircraft equipment</div>
                         </div>
 
                         {/* Aircraft photo */}
@@ -1285,8 +1678,8 @@ export default function App() {
                                 {flight.registration && (
                                     <div style={{
                                         position: 'absolute', bottom: 7, right: 9,
-                                        fontSize: '0.45rem', color: 'rgba(255,255,255,0.45)',
-                                        fontFamily: 'Inter, sans-serif', letterSpacing: '1px',
+                                        fontSize: '0.625rem', color: 'rgba(255,255,255,0.7)',
+                                        fontFamily: SANS, letterSpacing: '1px', ...NUM,
                                     }}>{flight.registration}</div>
                                 )}
                             </div>
@@ -1295,25 +1688,37 @@ export default function App() {
                         {/* Route */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '15px 0', padding: '12px 0', borderTop: '1px solid #222', borderBottom: '1px solid #222' }}>
                             <div>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#fff' }}>{flight.origin}</div>
-                                <div style={{ fontSize: '0.55rem', color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>ORIGIN</div>
+                                <div style={{ fontFamily: DISPLAY, fontSize: '1.8rem', lineHeight: 1.1, fontWeight: 700, color: flight.origin === 'UNK' ? '#4a5656' : '#fff', letterSpacing: '0.5px' }}>{flight.origin === 'UNK' ? '———' : flight.origin}</div>
+                                <div style={LABEL}>Origin</div>
                             </div>
-                            <div style={{ color: '#00ffcc', fontSize: '1.2rem' }}>✈</div>
+                            <div aria-hidden="true" style={{ flex: 1, display: 'flex', alignItems: 'center', margin: '0 14px 16px', minWidth: 40 }}>
+                                <div style={{ width: 5, height: 5, borderRadius: '50%', border: '1px solid rgba(0,255,204,0.6)' }} />
+                                <div style={{ flex: 1, borderTop: '1px dashed rgba(0,255,204,0.35)' }} />
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="#00ffcc" style={{ transform: 'rotate(90deg)', margin: '0 4px', flexShrink: 0 }}>
+                                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                                </svg>
+                                <div style={{ flex: 1, borderTop: '1px dashed rgba(0,255,204,0.35)' }} />
+                                <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(0,255,204,0.6)' }} />
+                            </div>
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#fff' }}>{flight.dest}</div>
-                                <div style={{ fontSize: '0.55rem', color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>DESTINATION</div>
+                                <div style={{ fontFamily: DISPLAY, fontSize: '1.8rem', lineHeight: 1.1, fontWeight: 700, color: flight.dest === 'UNK' ? '#4a5656' : '#fff', letterSpacing: '0.5px' }}>{flight.dest === 'UNK' ? '———' : flight.dest}</div>
+                                <div style={LABEL}>Destination</div>
                             </div>
                         </div>
 
                         {/* Stats */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'end', marginBottom: '16px', ...NUM }}>
                             <div>
-                                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#fff' }}>{flight.alt.toLocaleString()} FT</div>
-                                <div style={{ fontSize: '0.55rem', color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>ALTITUDE</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>{flight.alt.toLocaleString()} <span style={{ fontSize: '0.7rem', color: INK_MUTED, fontWeight: 600 }}>FT</span></div>
+                                <div style={LABEL}>Altitude</div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>{flight.dist} <span style={{ fontSize: '0.7rem', color: INK_MUTED, fontWeight: 600 }}>MI</span></div>
+                                <div style={LABEL}>Away</div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#fff' }}>{flight.speed} KTS</div>
-                                <div style={{ fontSize: '0.55rem', color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>SPEED</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>{flight.speed} <span style={{ fontSize: '0.7rem', color: INK_MUTED, fontWeight: 600 }}>KTS</span></div>
+                                <div style={LABEL}>Speed</div>
                             </div>
                         </div>
 
@@ -1322,15 +1727,18 @@ export default function App() {
                             <div ref={mapDivRef} className="fc-map" style={{ height: '220px' }}></div>
                             <div style={{ position: 'absolute', inset: 0, borderRadius: '20px', boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)', pointerEvents: 'none' }}></div>
                             <div style={{
-                                position: 'absolute', bottom: 8, right: 10,
-                                fontSize: '0.45rem', color: 'rgba(255,255,255,0.4)',
-                                fontFamily: 'Inter, sans-serif', letterSpacing: '1px',
+                                position: 'absolute', top: 10, left: 12, zIndex: 500,
+                                display: 'flex', alignItems: 'center', gap: '7px',
+                                padding: '4px 9px 4px 8px', borderRadius: '20px',
+                                background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(0,255,204,0.25)',
+                                fontSize: '0.625rem', fontWeight: 700, color: '#00ffcc',
+                                fontFamily: SANS, letterSpacing: '1.5px',
                                 pointerEvents: 'none', textTransform: 'uppercase',
-                            }}>LIVE AIRSPACE</div>
+                            }}><span className="fr-live-dot" />Live</div>
                             <div style={{
-                                position: 'absolute', bottom: 8, left: 12,
-                                fontSize: '0.45rem', color: 'rgba(255,255,255,0.35)',
-                                fontFamily: 'Inter, sans-serif', letterSpacing: '0.5px',
+                                position: 'absolute', bottom: 7, right: 12, zIndex: 500,
+                                fontSize: '0.5625rem', color: 'rgba(255,255,255,0.5)',
+                                fontFamily: SANS, letterSpacing: '0.5px',
                                 pointerEvents: 'none',
                             }}>© CARTO © OpenStreetMap</div>
                         </div>
@@ -1355,6 +1763,9 @@ export default function App() {
                         }}
                     >
                         <div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="bm-title"
                             onClick={e => e.stopPropagation()}
                             style={{
                                 background: 'rgba(15,15,20,0.98)',
@@ -1363,14 +1774,16 @@ export default function App() {
                                 padding: '30px 24px',
                                 maxWidth: '340px',
                                 width: '100%',
-                                fontFamily: 'Inter, system-ui, sans-serif',
+                                fontFamily: SANS,
                                 boxShadow: '0 0 40px rgba(0,255,204,0.1)',
                                 textAlign: 'center',
                             }}
                         >
-                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔖</div>
-                            <div style={{ fontSize: '0.6rem', letterSpacing: '2px', color: '#00ffcc', fontWeight: 700, marginBottom: '6px' }}>ADD AS BOOKMARK</div>
-                            <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '24px', lineHeight: 1.5 }}>
+                            <svg aria-hidden="true" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#00ffcc" strokeWidth="1.6" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto 14px' }}>
+                                <path d="M6 3.5h12v17l-6-4.2-6 4.2z" />
+                            </svg>
+                            <h2 id="bm-title" style={{ fontSize: '0.7rem', letterSpacing: '2px', color: '#00ffcc', fontWeight: 700, margin: '0 0 6px' }}>ADD AS BOOKMARK</h2>
+                            <div style={{ fontSize: '0.8rem', color: INK_MUTED, marginBottom: '24px', lineHeight: 1.5 }}>
                                 {mobile ? 'Did you save it from the share sheet?' : 'Follow the steps below to save this page'}
                             </div>
 
@@ -1414,7 +1827,7 @@ export default function App() {
                                     borderRadius: '50px', color: '#000',
                                     fontSize: '0.7rem', fontWeight: 900,
                                     letterSpacing: '1.5px', cursor: 'pointer',
-                                    fontFamily: 'Inter, system-ui, sans-serif',
+                                    fontFamily: SANS,
                                     marginBottom: '10px',
                                 }}
                             >
@@ -1424,11 +1837,11 @@ export default function App() {
                                 onClick={() => setShowBookmarkModal(false)}
                                 style={{
                                     width: '100%', padding: '10px',
-                                    background: 'transparent', border: '1px solid #333',
-                                    borderRadius: '50px', color: '#555',
+                                    background: 'transparent', border: '1px solid #2c3434',
+                                    borderRadius: '50px', color: INK_MUTED,
                                     fontSize: '0.65rem', fontWeight: 600,
                                     letterSpacing: '1px', cursor: 'pointer',
-                                    fontFamily: 'Inter, system-ui, sans-serif',
+                                    fontFamily: SANS,
                                 }}
                             >
                                 NOT NOW

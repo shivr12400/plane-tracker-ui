@@ -14,7 +14,7 @@
   --muted: #8fa0a0;
   --accent: #00ffcc;
   --accent-dim: #0b8f77;
-  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sans: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
   --wrap: 1120px;
