@@ -40,21 +40,21 @@ const AIRCRAFT_MAPPING = {
     'DH8A': 'De Havilland Dash 8 Q100', 'DH8B': 'De Havilland Dash 8 Q200',
     'AT72': 'ATR 72', 'AT75': 'ATR 72-500', 'AT76': 'ATR 72-600', 'AT43': 'ATR 42-300', 'AT45': 'ATR 42-500',
     'SF34': 'Saab 340', 'S20T': 'Saab 2000', 'BE20': 'Beechcraft King Air 200', 'BE9L': 'Beechcraft King Air 90',
-    'C208': 'Cessna Caravan', 'C208B': 'Cessna Grand Caravan',
-    'PAY3': 'Piper Navajo', 'PA44': 'Piper Seminole', 'PA28': 'Piper Cherokee',
+    'C208': 'Cessna 208 Caravan', 'C208B': 'Cessna Grand Caravan',
+    'PAY3': 'Piper Cheyenne III', 'PA44': 'Piper Seminole', 'PA28': 'Piper Cherokee',
     'PA31': 'Piper Navajo 310', 'PA34': 'Piper Seneca',
-    'BN2P': 'Britten-Norman Islander', 'TRIN': 'Piper Trinidad',
+    'BN2P': 'Britten-Norman Islander', 'TRIN': 'Socata TB-20 Trinidad',
     // Business jets
     'GLF4': 'Gulfstream IV', 'GLF5': 'Gulfstream V', 'GLF6': 'Gulfstream G650',
-    'G150': 'Gulfstream G150', 'G280': 'Gulfstream G280', 'G550': 'Gulfstream G550',
+    'G150': 'Gulfstream G150', 'G280': 'Gulfstream G280', 'G550': 'Gulfstream G550', 'GLF5': 'Gulfstream V / G550',
     'CL30': 'Challenger 300', 'CL35': 'Challenger 350', 'CL60': 'Challenger 600',
     'C25A': 'Cessna Citation CJ2', 'C25B': 'Cessna Citation CJ3', 'C25C': 'Cessna Citation CJ4',
     'C56X': 'Cessna Citation Excel', 'C68A': 'Cessna Citation Latitude', 'C750': 'Cessna Citation X',
     'C510': 'Cessna Citation Mustang', 'C525': 'Cessna CitationJet',
-    'F2TH': 'Dassault Falcon 2000', 'F900': 'Dassault Falcon 900', 'F7X': 'Dassault Falcon 7X', 'F8X': 'Dassault Falcon 8X',
+    'F2TH': 'Dassault Falcon 2000', 'F900': 'Dassault Falcon 900', 'FA7X': 'Dassault Falcon 7X', 'FA8X': 'Dassault Falcon 8X', 'F7X': 'Dassault Falcon 7X', 'F8X': 'Dassault Falcon 8X',
     'E50P': 'Embraer Phenom 100', 'E55P': 'Embraer Phenom 300', 'E545': 'Embraer Legacy 450', 'E550': 'Embraer Legacy 500',
     'LJ35': 'Learjet 35', 'LJ45': 'Learjet 45', 'LJ60': 'Learjet 60', 'LJ75': 'Learjet 75',
-    'H25B': 'Hawker 800XP', 'H25C': 'Hawker 850XP', 'BE40': 'Beechcraft Premier I',
+    'H25B': 'Hawker 800XP / 850XP', 'H25C': 'Hawker 1000', 'BE40': 'Beechjet 400 / Hawker 400XP', 'PRM1': 'Beechcraft Premier I',
     'PC24': 'Pilatus PC-24',
     // Small piston / general aviation
     'PC12': 'Pilatus PC-12', 'C172': 'Cessna 172 Skyhawk', 'C182': 'Cessna 182 Skylane', 'GX' : "Another thing",
@@ -66,13 +66,14 @@ const AIRCRAFT_MAPPING = {
     // Helicopters
     'H60': 'Sikorsky Black Hawk', 'S61': 'Sikorsky S-61', 'S76': 'Sikorsky S-76',
     'EC35': 'Airbus H135', 'EC45': 'Airbus H145', 'EC55': 'Airbus H155',
-    'EC30': 'Airbus EC130', 'AS32': 'Airbus AS332 Super Puma', 'H225': 'Airbus H225',
+    'EC30': 'Airbus EC130', 'AS32': 'Airbus AS332 Super Puma', 'H225': 'Airbus H225', 'EC25': 'Airbus H225 / EC225',
     'B06': 'Bell 206 JetRanger', 'B212': 'Bell 212', 'B407': 'Bell 407', 'B412': 'Bell 412', 'B429': 'Bell 429',
     'R22': 'Robinson R22', 'R44': 'Robinson R44', 'R66': 'Robinson R66',
     'MD52': 'MD Helicopters MD-520N', 'MD83H': 'MD Helicopters MD-83',
-    'LYNC': 'AgustaWestland Lynx', 'AW09': 'AgustaWestland AW09',
-    'AW13': 'AgustaWestland AW139', 'AW16': 'AgustaWestland AW169', 'AW18': 'AgustaWestland AW189',
-    'CH47': 'Boeing CH-47 Chinook', 'V22': 'Bell Boeing V-22 Osprey',
+    'LYNX': 'Westland Lynx', 'LYNC': 'Westland Lynx', 'AW09': 'AgustaWestland AW09',
+    'A139': 'Leonardo AW139', 'A169': 'Leonardo AW169', 'A189': 'Leonardo AW189',
+    'AW13': 'Leonardo AW139', 'AW16': 'Leonardo AW169', 'AW18': 'Leonardo AW189',
+    'H47': 'Boeing CH-47 Chinook', 'CH47': 'Boeing CH-47 Chinook', 'V22': 'Bell Boeing V-22 Osprey',
     // Military / special
     'C130': 'Lockheed C-130 Hercules', 'C17': 'Boeing C-17 Globemaster',
     'P8': 'Boeing P-8 Poseidon', 'E3TF': 'Boeing E-3 Sentry',
@@ -103,29 +104,30 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY;
 
 const HELICOPTER_CODES = new Set([
-    'H60','S61','S76','EC35','EC45','EC55','EC30','AS32','H225',
+    'H60','S61','S76','EC35','EC45','EC55','EC30','AS32','H225','EC25',
     'B06','B212','B407','B412','B429','R22','R44','R66',
-    'MD52','LYNC','AW09','AW13','AW16','AW18','CH47','V22',
+    'MD52','LYNC','LYNX','AW09','AW13','AW16','AW18','A139','A169','A189','CH47','H47','V22',
 ]);
 const SMALL_GA_CODES = new Set([
     'C172','C152','C182','C206','C210','SR22','SR20','GX',
     'DA40','DA42','DA62','BE36','BE58','M20P','PA28','PA44','TOBA',
+    'PA31','PA34','BN2P','TRIN',
 ]);
 const TURBOPROP_CODES = new Set([
     'DH8D','DH8C','DH8A','DH8B',
     'AT72','AT75','AT76','AT43','AT45',
     'SF34','S20T','BE20','BE9L',
-    'C208','C208B','PAY3','PA31','PA34','BN2P','TRIN',
+    'C208','C208B','PAY3',
 ]);
 const PRIVATE_JET_CODES = new Set([
     'CRJ2','CRJ7','CRJ9','CRJX',
     'GLF4','GLF5','GLF6','G150','G280','G550',
     'CL30','CL35','CL60',
     'C25A','C25B','C25C','C56X','C68A','C750','C510','C525',
-    'F2TH','F900','F7X','F8X',
+    'F2TH','F900','F7X','F8X','FA7X','FA8X',
     'E50P','E55P','E545','E550',
     'LJ35','LJ45','LJ60','LJ75',
-    'H25B','H25C','BE40','PC24',
+    'H25B','H25C','BE40','PRM1','PC24',
 ]);
 
 const planeSvgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc" width="28" height="28"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;

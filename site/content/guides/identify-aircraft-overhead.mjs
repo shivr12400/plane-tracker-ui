@@ -2,14 +2,16 @@ import { article } from '../../layout.mjs';
 
 export const meta = {
   path: '/guides/identify-aircraft-overhead/',
-  title: 'How to identify an aircraft overhead without looking at your phone',
+  title: 'How to Identify a Plane Overhead by Eye',
   description:
-    'Engine count and placement, wing sweep, tail shape, sound and contrail. A field method for naming the aircraft above you by eye, then checking yourself against the radar.',
+    'Engine count and placement, wing sweep, tail shape, sound and contrail: a field method for naming the aircraft above you by eye, then checking it on the radar.',
   tag: 'Field skill',
   cardTitle: 'Identifying a plane overhead by eye',
   cardBlurb:
     'Engine count and placement, wing sweep, tail shape, sound and contrail — how to name the aircraft before you look at the screen.',
-  updated: 'September 2026',
+  published: '2026-10-19',
+  updated: '2026-11-19',
+  ogImage: '/img/og/identify-aircraft-overhead.png',
   readingTime: 8,
 };
 
@@ -27,6 +29,7 @@ export const page = {
       { href: '/aircraft/', label: 'Aircraft type code reference', note: 'Turn the four-character code on the card into a name.' },
       { href: '/guides/plane-spotting-near-an-airport/', label: 'Spotting near an airport', note: 'Where to stand when you want a closer look.' },
       { href: '/guides/reading-altitude-speed-heading/', label: 'Reading altitude, speed and heading', note: 'The numbers that narrow the field before you look up.' },
+      { href: '/guides/callsigns-and-airline-codes/', label: 'Callsigns and airline codes', note: 'Decode the callsign once the radar has named the aircraft.' },
     ],
     sections: `
         <h2>Start with the question the sky is answering</h2>
@@ -76,6 +79,11 @@ export const page = {
             helicopter seen head on. Listen: rotors are unmistakable once you have heard them.
           </li>
         </ol>
+        <figure>
+          <img src="/img/engine-layouts.svg" width="880" height="360" loading="lazy"
+               alt="Top-down silhouettes of six aircraft layouts: a four-engined widebody, a twin-engined widebody, a twin-engined narrowbody, a rear-engined regional jet with a T-tail, a high-wing twin turboprop, and a single-engined light aircraft." />
+          <figcaption>The six layouts in step one, seen from below. Engine count and position narrow the field faster than anything else.</figcaption>
+        </figure>
 
         <h2>Step two: the shape of the wing</h2>
         <p>
@@ -83,7 +91,8 @@ export const page = {
           wing means a jet built to cruise near Mach&nbsp;0.85. A straight or barely swept wing means something
           that cruises far slower — a turboprop or a piston aircraft. High-wing aircraft, where the wing sits on
           top of the fuselage, are almost always either light aircraft (Cessna 172, Caravan) or military
-          transports (C-130, C-17); airliners are essentially all low-wing.
+          transports (C-130, C-17). Jet airliners are almost all low-wing; the high-wing exceptions are the
+          turboprop airliners (ATR, Dash 8) and the four-engined BAe&nbsp;146 / Avro RJ.
         </p>
         <p>
           Wingtips are the single best discriminator between the two dominant narrowbody families:
@@ -102,8 +111,10 @@ export const page = {
             is the classic older A320 family wingtip.
           </li>
           <li>
-            <strong>No winglet at all</strong> on a swept-wing jet suggests an older airframe: an early A320, a
-            757, a CRJ, or many freighters.
+            <strong>No winglet at all</strong> on a swept-wing jet suggests an older airframe or a large
+            widebody: early 737s, many 767s, the 777 (which has raked tips instead), or older freighters. Be
+            careful with the 757 and the CRJ: many 757s have been retrofitted with blended winglets, and CRJs
+            have small winglets of their own.
           </li>
         </ul>
 
@@ -117,9 +128,10 @@ export const page = {
         </p>
         <p>
           The tail tells you about the aircraft's family. A T-tail means a rear-engined jet or a turboprop.
-          A conventional tail with the stabiliser on the fuselage means a wing-engined airliner. A trijet with
-          an engine buried in the fin is now so rare — the MD-11 in freight service, essentially — that seeing
-          one is an event.
+          A conventional tail with the stabiliser on the fuselage means a wing-engined airliner. An airliner
+          trijet with an engine in the fin is now a rarity — a dwindling number of MD-11 freighters at most —
+          so if you see three engines on a small, fast jet, two on the rear fuselage and one in the tail, it is
+          far more likely to be a Dassault Falcon 7X, 8X or 900 business jet.
         </p>
 
         <div class="callout">

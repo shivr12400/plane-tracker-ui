@@ -15,6 +15,30 @@ export const SITE = {
   adsenseClient: 'ca-pub-6581385326972363',
 };
 
+/** Escape a value for use inside a double-quoted HTML attribute (or as text). */
+export const attr = (v) =>
+  String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** 'YYYY-MM-DD' -> 'November 2026'. */
+export const monthYear = (iso) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+/** Guides shown in the footer, in reading order. */
+const FOOTER_GUIDES = [
+  ['/guides/how-adsb-works/', 'How ADS-B works'],
+  ['/guides/identify-aircraft-overhead/', 'Identify a plane overhead'],
+  ['/guides/reading-altitude-speed-heading/', 'Reading the numbers'],
+  ['/guides/callsigns-and-airline-codes/', 'Callsigns explained'],
+  ['/guides/why-some-aircraft-dont-appear/', 'Why some aircraft never appear'],
+  ['/guides/plane-spotting-near-an-airport/', 'Spotting near an airport'],
+];
+const FOOTER_HOUSE = [
+  ['/guides/why-planes-fly-over-my-house/', 'Why planes fly over my house'],
+  ['/guides/plane-circling-over-my-house/', 'Plane circling overhead'],
+  ['/guides/helicopter-over-my-house/', 'Helicopter over my house'],
+  ['/guides/military-aircraft-overhead/', 'Military aircraft overhead'],
+];
+
 /** Google AdSense ad units.
  *
  *  Slot IDs are created in the AdSense dashboard *after* the site is approved.
@@ -65,7 +89,7 @@ function header(current) {
     <header class="site-head">
       <div class="wrap head-inner">
         <a class="brand" href="/">
-          <img src="/logo.png" alt="" width="34" height="34" />
+          <img src="/logo.png" alt="AeroPine" width="34" height="34" />
           <span>Aero<b>Pine</b></span>
         </a>
         <nav class="site-nav" aria-label="Main">
@@ -83,17 +107,18 @@ function footer() {
           <div class="foot-brand">Aero<b>Pine</b></div>
           <p class="foot-note">
             A live look at the aircraft passing over your own address, plus plain-English
-            writing about how to read what you are seeing. Built and maintained by one
-            person in New Jersey.
+            writing about how to read what you are seeing. An independent project run by
+            the AeroPine team in New Jersey.
           </p>
         </div>
         <div>
           <h2>Read</h2>
           <a href="/guides/">All guides</a>
-          <a href="/guides/how-adsb-works/">How ADS-B works</a>
-          <a href="/guides/identify-aircraft-overhead/">Identify a plane overhead</a>
-          <a href="/guides/reading-altitude-speed-heading/">Reading the numbers</a>
-          <a href="/guides/callsigns-and-airline-codes/">Callsigns explained</a>
+          ${FOOTER_GUIDES.map(([h, l]) => `<a href="${h}">${l}</a>`).join('\n          ')}
+        </div>
+        <div>
+          <h2>Over my house</h2>
+          ${FOOTER_HOUSE.map(([h, l]) => `<a href="${h}">${l}</a>`).join('\n          ')}
         </div>
         <div>
           <h2>Reference</h2>
@@ -139,12 +164,29 @@ function footer() {
  * @param {string} [page.appTags] built React bundle tags (home + /radar/ only)
  * @param {string} [page.jsonLd]  JSON-LD block
  * @param {string} [page.bodyClass]
+ * @param {string} [page.ogImage]  absolute-path og:image (default /og-image.png)
+ * @param {string} [page.ogImageAlt]
+ * @param {{name:string,path?:string}[]} [page.crumbs]  visible breadcrumb trail (last item = this page)
  */
 export function renderPage(page) {
   const canonical = SITE.origin + page.path;
   const title =
     page.fullTitle ||
     (page.path === '/' ? `${SITE.name} — ${SITE.tagline}` : `${page.title} | ${SITE.name}`);
+  const ogImage = SITE.origin + (page.ogImage || '/og-image.png');
+  const ogAlt = page.ogImageAlt || 'AeroPine logo';
+  const crumbs = page.crumbs?.length
+    ? `
+    <nav class="crumbs wrap${page.ogType === 'article' ? ' narrow' : ''}" aria-label="Breadcrumb">
+      <ol>${page.crumbs
+        .map((c, i) =>
+          i === page.crumbs.length - 1
+            ? `<li aria-current="page">${attr(c.name)}</li>`
+            : `<li><a href="${c.path}">${attr(c.name)}</a></li>`
+        )
+        .join('')}</ol>
+    </nav>`
+    : '';
   const adsense = page.ads
     ? `\n    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}" crossorigin="anonymous"></script>`
     : '';
@@ -153,20 +195,20 @@ export function renderPage(page) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>${title}</title>
-    <meta name="description" content="${page.description}" />
+    <title>${attr(title)}</title>
+    <meta name="description" content="${attr(page.description)}" />
     <link rel="canonical" href="${canonical}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="author" content="AeroPine" />
     <meta property="og:type" content="${page.ogType || 'website'}" />
     <meta property="og:site_name" content="${SITE.name}" />
-    <meta property="og:title" content="${title}" />
-    <meta property="og:description" content="${page.description}" />
+    <meta property="og:title" content="${attr(title)}" />
+    <meta property="og:description" content="${attr(page.description)}" />
     <meta property="og:url" content="${canonical}" />
-    <meta property="og:image" content="${SITE.origin}/og-image.png" />
+    <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="AeroPine logo" />
+    <meta property="og:image:alt" content="${attr(ogAlt)}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#05080a" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
@@ -181,7 +223,7 @@ export function renderPage(page) {
   <body class="${page.bodyClass || ''}">
     <a class="skip" href="#main">Skip to content</a>
 ${header(page.path)}
-    <main id="main">
+    <main id="main">${crumbs}
 ${page.body}
     </main>
 ${footer()}
@@ -192,6 +234,7 @@ ${footer()}
 
 /** Article page scaffold: title block, prose, optional in-article ad. */
 export function article({ h1, standfirst, updated, readingTime, sections, related = [] }) {
+  // `updated` is an ISO date (YYYY-MM-DD) — the same value feeds JSON-LD and the sitemap.
   const relatedHtml = related.length
     ? `
         <section class="related">
@@ -206,8 +249,9 @@ export function article({ h1, standfirst, updated, readingTime, sections, relate
         <p class="kicker">Guide</p>
         <h1>${h1}</h1>
         <p class="standfirst">${standfirst}</p>
-        <p class="byline">Written by the AeroPine team · Updated ${updated} · ${readingTime} min read</p>
+        <p class="byline">Written by the AeroPine team · Updated <time datetime="${updated}">${monthYear(updated)}</time> · ${readingTime} min read</p>
         ${sections}
+        <p class="cta-line"><a class="btn" href="/">See what is overhead right now →</a></p>
         ${adUnit('inArticle')}
         ${relatedHtml}
       </article>`;

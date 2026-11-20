@@ -1,0 +1,32 @@
+# AeroPine
+
+> AeroPine (aeropine.com) is a free web app that identifies the aircraft flying over your location right now, using live ADS-B data, and shows its airline, aircraft type, route, altitude, speed and a photo. It also publishes plain-English guides to reading flight-tracking data. It is for interest and education only, not for navigation.
+
+## Tool
+
+- [Live radar (home)](https://www.aeropine.com/): the closest aircraft to you, embedded in an explainer
+- [Full-screen radar](https://www.aeropine.com/radar/)
+
+## Guides
+
+- [How ADS-B works](https://www.aeropine.com/guides/how-adsb-works/)
+- [Reading altitude, speed and heading](https://www.aeropine.com/guides/reading-altitude-speed-heading/)
+- [Why some aircraft never appear on a flight tracker](https://www.aeropine.com/guides/why-some-aircraft-dont-appear/)
+- [Callsigns and airline codes](https://www.aeropine.com/guides/callsigns-and-airline-codes/)
+- [Identify an aircraft overhead by eye](https://www.aeropine.com/guides/identify-aircraft-overhead/)
+- [Plane spotting near an airport](https://www.aeropine.com/guides/plane-spotting-near-an-airport/)
+- [Why do planes fly over my house?](https://www.aeropine.com/guides/why-planes-fly-over-my-house/)
+- [Why is a plane circling over my house?](https://www.aeropine.com/guides/plane-circling-over-my-house/)
+- [Why is a helicopter flying over my house?](https://www.aeropine.com/guides/helicopter-over-my-house/)
+- [Military aircraft overhead](https://www.aeropine.com/guides/military-aircraft-overhead/)
+
+## Reference
+
+- [Aircraft type codes (ICAO designators)](https://www.aeropine.com/aircraft/)
+- [Airline callsign codes](https://www.aeropine.com/airlines/)
+- [Aviation glossary](https://www.aeropine.com/glossary/)
+
+## About
+
+- [About AeroPine](https://www.aeropine.com/about/)
+- [Privacy and cookies](https://www.aeropine.com/privacy/)

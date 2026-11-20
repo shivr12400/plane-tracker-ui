@@ -11,7 +11,7 @@ export const page = {
         <p class="kicker">Contact</p>
         <h1>Contact AeroPine</h1>
         <p class="standfirst">
-          AeroPine is run by one person, and every message is read.
+          AeroPine is run by a small independent team, and every message is read.
         </p>
         <p>
           Email <a href="mailto:${SITE.contact}">${SITE.contact}</a>.

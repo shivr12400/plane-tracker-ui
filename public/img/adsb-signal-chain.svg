@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" role="img" aria-labelledby="t">
+  <title id="t">The ADS-B chain from aircraft to AeroPine</title>
+  <rect width="880" height="300" fill="#0c1215"/>
+  <g font-family="Helvetica, Arial, sans-serif" fill="#dbe5e5">
+    <!-- GPS satellite -->
+    <g transform="translate(70 60)">
+      <rect x="-10" y="-10" width="20" height="20" rx="3" fill="#8fa0a0"/>
+      <rect x="-46" y="-6" width="30" height="12" fill="#0b8f77"/>
+      <rect x="16" y="-6" width="30" height="12" fill="#0b8f77"/>
+      <text x="0" y="38" font-size="13" text-anchor="middle" fill="#8fa0a0">GPS satellites</text>
+    </g>
+    <path d="M110 80 L205 120" stroke="#8fa0a0" stroke-width="1.5" stroke-dasharray="4 5"/>
+    <text x="150" y="88" font-size="11" fill="#8fa0a0" transform="rotate(22 150 88)">position fix</text>
+    <!-- Aircraft -->
+    <g transform="translate(250 130)" fill="#00ffcc">
+      <path d="M-46 0 L40 -4 Q52 0 40 4 Z"/>
+      <path d="M-4 -2 L-22 -40 L-12 -40 L14 -2 Z"/>
+      <path d="M-4 2 L-22 40 L-12 40 L14 2 Z"/>
+      <path d="M-40 -1 L-50 -16 L-43 -16 L-30 -1 Z"/>
+      <path d="M-40 1 L-50 16 L-43 16 L-30 1 Z"/>
+    </g>
+    <text x="250" y="195" font-size="14" text-anchor="middle" font-weight="700">Aircraft</text>
+    <text x="250" y="213" font-size="12" text-anchor="middle" fill="#8fa0a0">broadcasts identity,</text>
+    <text x="250" y="229" font-size="12" text-anchor="middle" fill="#8fa0a0">position and altitude</text>
+    <!-- radio waves -->
+    <g fill="none" stroke="#00ffcc" stroke-width="2" opacity="0.8">
+      <path d="M312 112 Q326 130 312 148"/><path d="M326 100 Q348 130 326 160"/><path d="M340 88 Q370 130 340 172"/>
+    </g>
+    <text x="352" y="70" font-size="12" fill="#00ffcc" text-anchor="middle">1090 MHz</text>
+    <!-- Receivers -->
+    <g transform="translate(450 150)">
+      <g fill="#dbe5e5">
+        <path d="M-40 40 L-40 18 L-28 6 L-16 18 L-16 40 Z" opacity="0.85"/>
+        <line x1="-28" y1="6" x2="-28" y2="-16" stroke="#dbe5e5" stroke-width="2"/>
+        <path d="M12 40 L12 18 L24 6 L36 18 L36 40 Z" opacity="0.85"/>
+        <line x1="24" y1="6" x2="24" y2="-16" stroke="#dbe5e5" stroke-width="2"/>
+      </g>
+      <text x="0" y="64" font-size="14" text-anchor="middle" font-weight="700">Volunteer receivers</text>
+      <text x="0" y="82" font-size="12" text-anchor="middle" fill="#8fa0a0">antennas on rooftops</text>
+    </g>
+    <path d="M500 150 L575 150" stroke="#8fa0a0" stroke-width="2" marker-end="url(#a)"/>
+    <!-- Aggregator -->
+    <g transform="translate(640 150)">
+      <rect x="-50" y="-30" width="100" height="60" rx="10" fill="none" stroke="#00ffcc" stroke-width="2"/>
+      <line x1="-34" y1="-10" x2="34" y2="-10" stroke="#0b8f77" stroke-width="3"/>
+      <line x1="-34" y1="4" x2="34" y2="4" stroke="#0b8f77" stroke-width="3"/>
+      <line x1="-34" y1="18" x2="10" y2="18" stroke="#0b8f77" stroke-width="3"/>
+      <text x="0" y="54" font-size="14" text-anchor="middle" font-weight="700">Aggregator network</text>
+      <text x="0" y="72" font-size="12" text-anchor="middle" fill="#8fa0a0">pools every receiver</text>
+    </g>
+    <path d="M692 150 L752 150" stroke="#8fa0a0" stroke-width="2" marker-end="url(#a)"/>
+    <!-- Phone -->
+    <g transform="translate(800 150)">
+      <rect x="-24" y="-42" width="48" height="84" rx="8" fill="none" stroke="#dbe5e5" stroke-width="2"/>
+      <circle cx="0" cy="-6" r="13" fill="none" stroke="#00ffcc" stroke-width="2"/>
+      <circle cx="0" cy="-6" r="3" fill="#00ffcc"/>
+      <text x="0" y="66" font-size="14" text-anchor="middle" font-weight="700">AeroPine</text>
+      <text x="0" y="84" font-size="12" text-anchor="middle" fill="#8fa0a0">closest aircraft</text>
+    </g>
+  </g>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#8fa0a0"/></marker></defs>
+</svg>

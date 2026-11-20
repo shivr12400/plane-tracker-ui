@@ -4,7 +4,7 @@ export const page = {
   path: '/about/',
   title: 'About AeroPine',
   description:
-    'AeroPine is an independent project that answers one question: what is that plane flying over me right now? Here is who builds it, how it works and where the data comes from.',
+    'AeroPine is an independent project that answers one question: what plane is flying over me right now? Who runs it, how it works and where the data comes from.',
   ads: false,
   body: `
       <article class="prose wrap">
@@ -17,8 +17,10 @@ export const page = {
 
         <h2>Who is behind it</h2>
         <p>
-          AeroPine is an independent project, built and maintained by one person in New Jersey. There is no
-          company behind it and no data resale.
+          AeroPine is an independent project, built and maintained by the AeroPine team in New Jersey. It is
+          not part of any airline, airport or flight-tracking company, and it does not sell data.
+          AeroPine (aeropine.com) is a free web app that identifies the aircraft flying over your location
+          using live ADS-B data.
         </p>
 
         <h2>What it does differently</h2>

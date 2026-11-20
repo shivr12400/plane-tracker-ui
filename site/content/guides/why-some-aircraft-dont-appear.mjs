@@ -4,12 +4,13 @@ export const meta = {
   path: '/guides/why-some-aircraft-dont-appear/',
   title: 'Why some aircraft never appear on a flight tracker',
   description:
-    'You can see the plane and the screen says the sky is empty. Coverage holes, aircraft with no ADS-B, blocked registrations, military traffic and database gaps — the full list of reasons.',
+    'You can see the plane but the tracker says the sky is empty. Coverage holes, no ADS-B, filtered registrations, military traffic and database gaps explained.',
   tag: 'Troubleshooting',
   cardTitle: 'Why some aircraft never appear',
   cardBlurb:
     'Blocked registrations, military traffic, gliders, coverage holes and the handful of other reasons the sky looks emptier than it is.',
-  updated: 'September 2026',
+  published: '2026-10-19',
+  updated: '2026-11-19',
   readingTime: 6,
 };
 
@@ -26,6 +27,8 @@ export const page = {
     related: [
       { href: '/guides/how-adsb-works/', label: 'How ADS-B works', note: 'The mechanism behind every gap described here.' },
       { href: '/guides/identify-aircraft-overhead/', label: 'Identifying a plane overhead', note: 'What to do when the screen cannot help you.' },
+      { href: '/guides/military-aircraft-overhead/', label: 'Military aircraft overhead', note: 'Which military aircraft broadcast, and why most fast jets do not.' },
+      { href: '/glossary/', label: 'Glossary', note: 'MLAT, Mode S, squawk and the other terms used here.' },
       { href: '/contact/', label: 'Report a problem', note: 'If you think something is genuinely wrong, tell us.' },
     ],
     sections: `
@@ -45,8 +48,9 @@ export const page = {
 
         <h2>2. It has no ADS-B to transmit</h2>
         <p>
-          The 2020 mandates in the United States and Europe cover most, not all, aircraft. Legally airborne
-          with nothing transmitting today:
+          The ADS-B mandates do not cover every aircraft. In the United States the requirement applies only in
+          the busier classes of airspace; in Europe it applies only to aircraft over 5,700&nbsp;kg or faster
+          than 250&nbsp;knots. Legally airborne with nothing transmitting today:
         </p>
         <ul>
           <li>Gliders and sailplanes, most of which use a separate low-power system called FLARM that ordinary receivers do not decode.</li>
@@ -78,16 +82,24 @@ export const page = {
         </p>
         <p>
           There is no conspiracy in this and nothing a tracking site can do about it. A fast, loud aircraft
-          that leaves the screen blank is very often exactly what it looks like.
+          that leaves the screen blank is very often exactly what it looks like. The
+          <a href="/aircraft/#military-and-special-mission">military and special-mission type codes</a> list the
+          ones that do show up, and <a href="/guides/military-aircraft-overhead/">our military aircraft guide</a>
+          covers what you are likely to see and hear.
         </p>
 
         <h2>5. The registration is filtered</h2>
         <p>
-          Programmes exist in several countries — the FAA's Limiting Aircraft Data Displayed scheme is the
-          best known — that let an aircraft's owner request their registration be withheld from public data
-          displays. Aggregators that want continued access to the data honour these lists. It applies to a
-          small number of privately owned aircraft, and it is why some business jets are missing from every
-          public tracker simultaneously.
+          Programmes exist in several countries — the FAA's
+          <a href="https://www.faa.gov/pilots/ladd" rel="noopener" target="_blank">Limiting Aircraft Data Displayed</a>
+          (LADD) scheme is the best known — that let an aircraft's owner request their registration be withheld
+          from public data displays. Commercial trackers that take FAA data honour these lists, which is why some
+          business jets are missing from the big tracking sites. Community feeds that pass on whatever their
+          receivers hear generally do not filter, so those aircraft may still appear there. The FAA also runs a
+          <a href="https://www.faa.gov/air_traffic/technology/equipadsb/privacy" rel="noopener" target="_blank">Privacy ICAO Address</a>
+          (PIA) programme that lets owners fly with a temporary, randomised address, so the aircraft appears but
+          cannot easily be matched to its registration — on the card that shows up as an unknown type and
+          operator.
         </p>
 
         <h2>6. The aircraft is there, but the details are not</h2>

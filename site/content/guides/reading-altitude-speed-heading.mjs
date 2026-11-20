@@ -2,14 +2,16 @@ import { article } from '../../layout.mjs';
 
 export const meta = {
   path: '/guides/reading-altitude-speed-heading/',
-  title: 'Reading altitude, speed and heading on a flight tracker',
+  title: 'Reading Altitude, Speed and Heading on a Tracker',
   description:
-    'Flight levels, barometric versus GPS altitude, ground speed versus airspeed, and how to tell a climb from a descent from a hold — what the numbers on the radar card really mean.',
+    'What the altitude, speed and heading on a flight tracker really mean: pressure altitude, flight levels, ground speed, and how to tell a climb from a hold.',
   tag: 'Fundamentals',
   cardTitle: 'What the altitude and speed numbers mean',
   cardBlurb:
     'Flight levels, barometric versus GPS altitude, ground speed versus airspeed, and the profiles that tell you climb from descent.',
-  updated: 'September 2026',
+  published: '2026-10-19',
+  updated: '2026-11-19',
+  ogImage: '/img/og/reading-altitude-speed-heading.png',
   readingTime: 7,
 };
 
@@ -31,26 +33,32 @@ export const page = {
     sections: `
         <h2>Altitude: the number that is not quite a height</h2>
         <p>
-          The altitude on the card is <strong>barometric altitude</strong>, worked out by the aircraft from air
-          pressure, not from GPS. Pressure falls predictably with height, so an altimeter is really a pressure
-          gauge with a height scale painted on it. The catch is that the pressure at sea level changes with the
-          weather, so the scale has to be recalibrated constantly against a local setting — the QNH — if the
-          reading is to mean height above the sea.
+          The altitude on the card is <strong>pressure altitude</strong>, worked out from air pressure, not from
+          GPS. Pressure falls predictably with height, so an altimeter is really a pressure gauge with a height
+          scale painted on it. The catch is that the pressure at sea level changes with the weather, so a pilot
+          who wants the altimeter to show height above the sea has to set it to the local pressure — the
+          <strong>QNH</strong>.
         </p>
         <p>
-          Above a certain altitude, everybody stops doing that. At and above the <strong>transition
+          The transponder does not do that. Whatever the pilot has set on the altimeter, the altitude it
+          broadcasts is always referenced to the standard pressure of 1013.25&nbsp;hPa (29.92&nbsp;inHg), at
+          every height. High up that matches what the crew sees: at and above the <strong>transition
           altitude</strong> — 18,000&nbsp;feet in the United States, often much lower in Europe — every aircraft
-          sets the standard pressure of 1013.25&nbsp;hPa (29.92&nbsp;inHg) and reports what that gives.
-          Altitudes from then on are called <strong>flight levels</strong> and written in hundreds of feet:
-          FL350 is 35,000&nbsp;feet on the standard setting. Everyone is using the same imaginary reference, so
-          vertical separation between aircraft is exact even when the reference itself is off by a few hundred
-          feet relative to the actual sea.
+          switches its altimeter to the same standard setting, and altitudes are called <strong>flight
+          levels</strong>, written in hundreds of feet: FL350 is 35,000&nbsp;feet on the standard setting.
+          Everyone is using the same imaginary reference, so vertical separation between aircraft is exact.
         </p>
         <p>
-          Practical consequence: the cruise altitude you see is a true, exact number in the sense that matters
-          for aviation, and an approximation in the sense you probably mean. On a stormy day with very low
-          pressure, an aircraft reporting 35,000&nbsp;feet may genuinely be a few hundred feet lower.
+          Practical consequence: in the cruise, the number you see is exactly what the crew sees, and an
+          approximation of true height in the sense you probably mean. Lower down it is an approximation of
+          both: an aircraft on approach that the pilot is flying at 3,000&nbsp;feet on the local QNH can show
+          a few hundred feet more or less on the tracker on a very high- or low-pressure day.
         </p>
+        <figure>
+          <img src="/img/flight-profile.svg" width="880" height="320" loading="lazy"
+               alt="Side-view chart of a typical airliner flight: a steep climb after take-off through 10,000 feet, a long level cruise between about 30,000 and 40,000 feet, then a gradual descent that begins over a hundred miles from the destination." />
+          <figcaption>A typical airliner profile. Most of the time an airliner overhead is either in the long, level cruise or on the shallow descent into an airport.</figcaption>
+        </figure>
 
         <div class="callout">
           <h3>Why cruise altitudes come in odd patterns</h3>
@@ -67,7 +75,8 @@ export const page = {
           <li>
             <strong>Below 3,000&nbsp;ft</strong> — the aircraft is doing something local: taking off, landing,
             flying a circuit, or it is a helicopter. If it is an airliner at this height you are close to an
-            airport, whether or not you realised it.
+            airport, whether or not you realised it — and probably under an
+            <a href="/guides/plane-spotting-near-an-airport/">approach path worth watching</a>.
           </li>
           <li>
             <strong>3,000–10,000&nbsp;ft</strong> — climb-out, descent, or light aircraft in the cruise. In
@@ -84,6 +93,7 @@ export const page = {
           </li>
           <li>
             <strong>FL300–FL400</strong> — the airliner cruise band. Nearly everything with a contrail is here.
+            <a href="/aircraft/">The type-code reference</a> tells you which family you are looking at.
           </li>
           <li>
             <strong>Above FL410</strong> — business jets, which routinely operate above airline traffic, and
@@ -154,6 +164,7 @@ export const page = {
           <li>
             <strong>Low altitude, slow speed, heading changing constantly and erratically</strong> — a
             helicopter working, an aerial survey, or a training flight doing manoeuvres.
+            <a href="/guides/plane-circling-over-my-house/">More on aircraft that circle.</a>
           </li>
           <li>
             <strong>Repeated identical descents to a very low altitude followed by climbs</strong> — touch and
@@ -169,6 +180,12 @@ export const page = {
           The aircraft is still exactly where the map says it is —
           <a href="/guides/why-some-aircraft-dont-appear/">the missing information is a database gap, not a
           tracking failure</a>.
-        </p>`,
+        </p>
+
+        <h2>Sources and further reading</h2>
+        <ul class="sources">
+          <li><a href="https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap7_section_2.html" rel="noopener" target="_blank">FAA Aeronautical Information Manual 7-2: Barometric altimeter errors and setting procedures</a></li>
+          <li><a href="https://www.skybrary.aero/articles/transition-altitudelevel" rel="noopener" target="_blank">SKYbrary: Transition altitude and level</a></li>
+        </ul>`,
   }),
 };

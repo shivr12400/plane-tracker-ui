@@ -2,14 +2,16 @@ import { article } from '../../layout.mjs';
 
 export const meta = {
   path: '/guides/how-adsb-works/',
-  title: 'How ADS-B works: the signal that puts aircraft on your screen',
+  title: 'How ADS-B Works: The Signal Behind Flight Trackers',
   description:
-    'Every airliner broadcasts its position in the clear about once a second. Here is what is in that signal, who receives it, how far it travels, and why coverage stops at the coast.',
+    'Airliners broadcast their position in the clear about twice a second. What is in that signal, who receives it, and why coverage stops at the coast.',
   tag: 'Fundamentals',
   cardTitle: 'How ADS-B lets a browser see aircraft',
   cardBlurb:
-    'The signal every airliner transmits once a second, who receives it, and why coverage is excellent over land and patchy over water.',
-  updated: 'September 2026',
+    'The signal every airliner transmits about twice a second, who receives it, and why coverage is excellent over land and patchy over water.',
+  published: '2026-10-19',
+  updated: '2026-11-19',
+  ogImage: '/img/og/how-adsb-works.png',
   readingTime: 7,
 };
 
@@ -20,7 +22,7 @@ export const page = {
   body: article({
     h1: 'How ADS-B works: the signal that puts aircraft on your screen',
     standfirst:
-      'There is no radar behind AeroPine. There is a radio transmission that almost every aircraft in the sky sends out voluntarily, in the clear, roughly once a second — and a global network of hobbyists listening to it.',
+      'There is no radar behind AeroPine. There is a radio transmission that almost every aircraft in the sky broadcasts automatically, in the clear, about twice a second — and a global network of hobbyists listening to it.',
     updated: meta.updated,
     readingTime: meta.readingTime,
     related: [
@@ -40,8 +42,18 @@ export const page = {
         </p>
         <p>
           That last word is the reason this website can exist. An aircraft passing over your street is
-          announcing, several times a minute, exactly who it is and exactly where it is, and it is not a
+          announcing, about twice a second, exactly who it is and exactly where it is, and it is not a
           secret.
+        </p>
+        <figure>
+          <img src="/img/adsb-signal-chain.svg" width="880" height="300" loading="lazy"
+               alt="Diagram of the ADS-B chain: an aircraft takes its position from GPS satellites, broadcasts it on 1090 MHz, ground receivers run by volunteers pick it up and send it to an aggregator network, and AeroPine reads from the aggregator to show you the closest aircraft." />
+          <figcaption>The ADS-B chain: the aircraft works out its own position, broadcasts it, volunteers' receivers hear it, and aggregators pool the results.</figcaption>
+        </figure>
+        <p>
+          The exact rate depends on the message type: position and velocity reports go out roughly twice a
+          second each, identity a little less often, so a receiver in range builds a fresh picture of the
+          aircraft every second or so.
         </p>
 
         <h2>What is in the message</h2>
@@ -54,7 +66,7 @@ export const page = {
         <ul>
           <li>
             <strong>An identity message</strong> containing the aircraft's 24-bit ICAO address — a unique
-            hexadecimal number assigned to the airframe for its life, which you will see written as
+            hexadecimal number tied to the aircraft's registration (it changes if the aircraft is re-registered in another country), which you will see written as
             something like <code>A1B2C3</code> — and the flight identification, which is normally the
             callsign the crew entered before departure.
           </li>
@@ -94,7 +106,7 @@ export const page = {
           </p>
         </div>
 
-        <h2>Who is listening</h2>
+        <h2>Who receives ADS-B signals?</h2>
         <p>
           A 1090&nbsp;MHz receiver is genuinely cheap: an eight-dollar software-defined radio dongle, a small
           antenna and a single-board computer will decode aircraft a hundred miles away. Tens of thousands of
@@ -113,7 +125,7 @@ export const page = {
           screen is the one you can see.
         </p>
 
-        <h2>Why coverage stops where it does</h2>
+        <h2>Why does coverage stop where it does?</h2>
         <p>
           1090&nbsp;MHz is line of sight. The signal does not bend around the planet, so a ground receiver can
           only hear an aircraft that is geometrically above its horizon. That gives a rule of thumb worth
@@ -147,20 +159,27 @@ export const page = {
           </li>
         </ul>
 
-        <h2>Not everyone is required to transmit</h2>
+        <h2>Does every aircraft have to transmit ADS-B?</h2>
         <p>
-          Since 2020, both the United States and the European Union have required ADS-B Out for most aircraft
-          operating in controlled airspace. That mandate is why the picture is as complete as it is. But the
-          exceptions are real: aircraft without electrical systems, gliders, balloons, many vintage types and
-          aircraft operating entirely outside controlled airspace can legally fly with nothing transmitting at
-          all. In the United States a second link, <strong>978&nbsp;MHz UAT</strong>, is available to aircraft
+          No. In the United States, ADS-B Out has been required since 1 January 2020 in the busier classes of
+          airspace — around major airports, above 10,000 feet, and in a few other defined areas
+          (<a href="https://www.ecfr.gov/current/title-14/section-91.225" rel="noopener" target="_blank">14&nbsp;CFR&nbsp;91.225</a>).
+          In Europe the rule applies to larger aircraft: those over 5,700&nbsp;kg maximum take-off mass or
+          capable of more than 250&nbsp;knots
+          (<a href="https://eur-lex.europa.eu/eli/reg_impl/2011/1207/oj" rel="noopener" target="_blank">Regulation (EU) 1207/2011</a>).
+          Those mandates are why the picture is as complete as it is. But the exceptions are real: aircraft
+          without electrical systems, gliders, balloons, many vintage types, and light aircraft that stay out
+          of the mandated airspace can legally fly with nothing transmitting at all. In the United States a second link, <strong>978&nbsp;MHz UAT</strong>, is available to aircraft
           that stay below 18,000&nbsp;feet, and many light aircraft use it — a receiver tuned only to
           1090&nbsp;MHz will not hear them.
         </p>
         <p>
           Military aircraft are their own category. Transport and tanker types frequently transmit normally.
-          Anything doing tactical work generally does not, and there are also programmes that allow sensitive
-          civil registrations to be filtered out of public feeds at the aggregator level.
+          Anything doing tactical work generally does not. In the US there are also two privacy programmes
+          for civil aircraft: owners can ask for their aircraft to be filtered from FAA-sourced data (the
+          LADD list), and they can fly with a temporary, randomised ICAO address so the broadcast does not
+          point back to their registration (PIA). Filtered commercial trackers honour LADD; community feeds
+          that pass on everything they receive generally do not.
           <a href="/guides/why-some-aircraft-dont-appear/">We go through all of those cases here.</a>
         </p>
 
@@ -168,11 +187,13 @@ export const page = {
         <p>
           The position is as good as the aircraft's own GPS fix, which is to say very good — typically within
           tens of metres. The <em>altitude</em> is the field that surprises people, because the primary
-          altitude in an ADS-B message is barometric, referenced to a standard pressure setting of
-          1013.25&nbsp;hPa rather than to the actual pressure of the day. Above the transition altitude every
-          aircraft uses that same standard setting, which keeps them correctly separated from one another but
-          means the displayed figure can differ from true height above sea level by several hundred feet in a
-          deep low-pressure system. For separation that is fine, because everyone is wrong by the same amount.
+          altitude in an ADS-B message is <em>pressure altitude</em>: it is always referenced to the standard
+          pressure setting of 1013.25&nbsp;hPa, whatever the actual pressure of the day and however high the
+          aircraft is. High up, above the transition altitude, pilots fly on that same standard setting, so
+          the figure matches their altimeter. Lower down they set the local pressure (QNH) instead, so on an
+          approach the tracker figure can differ from the altitude the pilot is flying by several hundred feet
+          on a very high- or low-pressure day. For separation that is fine, because every transponder uses the
+          same reference.
           For satisfying your curiosity about how high that plane is, treat it as a good approximation rather
           than a survey.
         </p>
@@ -190,6 +211,14 @@ export const page = {
           antenna on the way to you. Nothing about it is proprietary and nothing about it is secret — it is
           public infrastructure that happens to be readable by anyone who cares to listen. That is a genuinely
           unusual thing in the modern world, and it is worth appreciating the next time a plane goes over.
-        </p>`,
+        </p>
+
+        <h2>Sources and further reading</h2>
+        <ul class="sources">
+          <li><a href="https://www.faa.gov/air_traffic/technology/adsb" rel="noopener" target="_blank">FAA: Automatic Dependent Surveillance–Broadcast (ADS-B)</a></li>
+          <li><a href="https://www.ecfr.gov/current/title-14/section-91.225" rel="noopener" target="_blank">14 CFR 91.225 — ADS-B Out equipment and use</a></li>
+          <li><a href="https://eur-lex.europa.eu/eli/reg_impl/2011/1207/oj" rel="noopener" target="_blank">Commission Implementing Regulation (EU) 1207/2011</a></li>
+          <li><a href="https://www.faa.gov/air_traffic/technology/equipadsb/privacy" rel="noopener" target="_blank">FAA: ADS-B privacy (LADD and PIA)</a></li>
+        </ul>`,
   }),
 };

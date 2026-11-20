@@ -2,14 +2,15 @@ import { article } from '../../layout.mjs';
 
 export const meta = {
   path: '/guides/plane-spotting-near-an-airport/',
-  title: 'Plane spotting near an airport: a beginner’s field guide',
+  title: 'Plane Spotting Near an Airport: Where and When',
   description:
-    'How to work out which runway is in use, where the approach path is, what time of day is busiest, what to bring, and how to spot near an airport without alarming anybody.',
+    'How to find the runway in use and the approach path, when an airport is busiest, what to bring, and how to spot planes near an airport without alarming anybody.',
   tag: 'Field skill',
   cardTitle: 'Spotting near an airport',
   cardBlurb:
     'Finding the approach path, reading runway numbers, choosing a time of day, and staying on the right side of airport security.',
-  updated: 'September 2026',
+  published: '2026-10-19',
+  updated: '2026-11-19',
   readingTime: 7,
 };
 
@@ -85,8 +86,11 @@ export const page = {
         <p>
           Airports have rhythms. At a hub, the busiest periods are the arrival and departure banks, when a
           wave of connecting flights lands within about forty minutes and departs an hour later. Early morning
-          is the long-haul arrival window at many gateway airports — transatlantic flights into the US east
-          coast land between roughly 06:00 and 09:00 — and late evening is when they go back out.
+          is the long-haul arrival window at many European gateways — overnight flights from North America land
+          at London, Paris and Frankfurt between roughly 06:00 and 10:00. On the US east coast the pattern is
+          reversed: flights from Europe arrive from late morning through the afternoon, the evening is when
+          the transatlantic departures go out, and the early-morning arrivals are mostly red-eyes from the
+          west coast and South America.
         </p>
         <p>
           For photography, the light matters as much as the traffic. Aim for the two hours after sunrise or

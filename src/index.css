@@ -5,7 +5,9 @@
   background-color: #050505;
 }
 
-body {
+/* Full-screen radar (/radar/) only — the home page (body.home) embeds the app in a
+   frame and must keep normal page scrolling. */
+body:not(.home) {
   margin: 0;
   display: flex;
   place-items: center;

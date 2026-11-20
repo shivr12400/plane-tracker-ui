@@ -1,4 +1,10 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { adUnit } from '../layout.mjs';
+
+const ref = JSON.parse(readFileSync(fileURLToPath(new URL('../../src/data/reference.json', import.meta.url)), 'utf8'));
+const TYPE_COUNT = Object.keys(ref.aircraft).length;
+const AIRLINE_COUNT = Object.keys(ref.airlines).length;
 
 export const faqs = [
   {
@@ -33,10 +39,17 @@ export const faqs = [
   },
   {
     q: 'How accurate are the altitude and speed figures?',
-    a: `They are what the aircraft itself is broadcasting. Altitude is normally barometric, referenced to
-        the standard 1013.25 hPa setting above the transition altitude, so it can differ from true height
-        above sea level by a few hundred feet. Speed is ground speed, not airspeed, so a strong tailwind
+    a: `They are what the aircraft itself is broadcasting. Altitude is pressure altitude, always referenced
+        to the standard 1013.25 hPa setting, so it can differ from true height above sea level — and, low
+        down, from the altitude the pilot is flying on the local pressure setting — by a few hundred feet. Speed is ground speed, not airspeed, so a strong tailwind
         can make a routine airliner look startlingly fast.`,
+  },
+  {
+    q: 'Why does a plane keep circling over my house?',
+    a: `Most often it is a holding pattern while an airport is busy, a flight-school aircraft practising, an
+        aerial survey or photography flight working a grid, or a police or news helicopter. Watch the
+        altitude and speed on the card: a slow, low, circling track is almost never an airliner.
+        <a href="/guides/plane-circling-over-my-house/">Here is how to tell which one you are looking at.</a>`,
   },
   {
     q: 'Can I use AeroPine to meet someone at the airport?',
@@ -65,10 +78,10 @@ const faqHtml = faqs
 export const page = {
   path: '/',
   title: 'AeroPine',
-  fullTitle: 'What Plane Is Flying Over Me? Live Overhead Plane Finder | AeroPine',
+  fullTitle: 'What Plane Is Flying Over Me? Live Plane Finder | AeroPine',
   description:
-    'AeroPine shows the aircraft passing over your exact location right now — type, operator, route, altitude and speed — plus plain-English guides to reading what you see in the sky.',
-  ads: true,
+    'See the plane flying over you right now: airline, aircraft type, route, altitude, speed and a photo. Free, no app, plus plain-English guides to the sky.',
+  ads: false,
   ogType: 'website',
   bodyClass: 'home',
   body: `
@@ -96,12 +109,12 @@ export const page = {
         <div class="wrap prose" style="padding-top:0">
           <h2>What the card above is actually telling you</h2>
           <p>
-            Nearly every aircraft in controlled airspace continuously broadcasts its own identity and
-            position in the clear, about once a second, on 1090&nbsp;MHz. That transmission is called
+            Airliners, and most aircraft in busy airspace, continuously broadcast their own identity and
+            position in the clear, about twice a second, on 1090&nbsp;MHz. That transmission is called
             <a href="/guides/how-adsb-works/">ADS-B</a>, and anyone with an antenna can receive it. A
             worldwide network of volunteers does exactly that and pools the results, which is where
-            AeroPine's data comes from. Nothing here is a prediction or an estimate of where a plane
-            ought to be — it is the position the aircraft itself reported moments ago.
+            AeroPine's data comes from. The position is not a prediction of where a plane ought to be — it
+            is what the aircraft itself reported moments ago; the marker only glides between reports.
           </p>
           <p>
             The panel puts six things in front of you, and each one comes from a different place:
@@ -139,6 +152,29 @@ export const page = {
               reported heading and speed.
             </li>
           </ul>
+
+          <h2>Why a plane might not show up</h2>
+          <p>
+            If you can see or hear an aircraft and the card shows something else, or nothing at all, it is
+            almost always one of three things:
+          </p>
+          <ul>
+            <li>
+              <strong>It is not broadcasting.</strong> Gliders, balloons, many light aircraft and most military
+              fast jets do not transmit ADS-B, so no tracker can show them.
+            </li>
+            <li>
+              <strong>Nobody nearby can hear it.</strong> Low-flying aircraft, especially helicopters, can be
+              below the horizon of every receiver in the area.
+            </li>
+            <li>
+              <strong>Your location is off.</strong> Indoors, or behind a VPN, the browser can place you a mile
+              or more from where you are standing.
+            </li>
+          </ul>
+          <p>
+            <a href="/guides/why-some-aircraft-dont-appear/">All seven reasons, and what to do about each.</a>
+          </p>
         </div>
       </section>
 
@@ -154,7 +190,7 @@ export const page = {
             <a class="card" href="/guides/how-adsb-works/">
               <span class="tag">Fundamentals</span>
               <h3>How ADS-B lets a browser see aircraft</h3>
-              <p>The signal every airliner transmits once a second, who receives it, and why coverage is excellent over land and patchy over water.</p>
+              <p>The signal every airliner transmits about twice a second, who receives it, and why coverage is excellent over land and patchy over water.</p>
             </a>
             <a class="card" href="/guides/identify-aircraft-overhead/">
               <span class="tag">Field skill</span>
@@ -185,7 +221,38 @@ export const page = {
         </div>
       </section>
 
-      ${adUnit('inArticle')}
+      <section class="band">
+        <div class="wrap">
+          <p class="kicker">Over my house</p>
+          <h2>Why is that plane over my house?</h2>
+          <p style="color:var(--muted);max-width:44rem;margin:0 0 28px">
+            The questions people ask when the same aircraft keeps coming back, flies low, or circles: what it
+            is likely to be, why it is there, and who to contact if it is a problem.
+          </p>
+          <div class="grid grid-3">
+            <a class="card" href="/guides/why-planes-fly-over-my-house/">
+              <span class="tag">Flight paths</span>
+              <h3>Why planes fly over my house</h3>
+              <p>Runway direction, wind, approach paths, how low aircraft may legally fly, and where noise complaints go.</p>
+            </a>
+            <a class="card" href="/guides/plane-circling-over-my-house/">
+              <span class="tag">Circling</span>
+              <h3>Why a plane is circling overhead</h3>
+              <p>Holding patterns, flight training, survey work and police aircraft, and how to tell them apart.</p>
+            </a>
+            <a class="card" href="/guides/helicopter-over-my-house/">
+              <span class="tag">Helicopters</span>
+              <h3>Why a helicopter is over my house</h3>
+              <p>Police, medical, news, utility and military helicopters, and why they often show no callsign.</p>
+            </a>
+            <a class="card" href="/guides/military-aircraft-overhead/">
+              <span class="tag">Military</span>
+              <h3>Military aircraft overhead</h3>
+              <p>Training routes, flyovers, tankers and transports, and which military aircraft show up on a tracker.</p>
+            </a>
+          </div>
+        </div>
+      </section>
 
       <section class="band">
         <div class="wrap">
@@ -193,12 +260,12 @@ export const page = {
           <h2>Reference tables</h2>
           <div class="grid grid-3">
             <a class="card" href="/aircraft/">
-              <span class="tag">158 type codes</span>
+              <span class="tag">${TYPE_COUNT} type codes</span>
               <h3>Aircraft type designators</h3>
               <p>Every ICAO type code AeroPine can name, grouped from Airbus narrowbodies to helicopters, with a note on what each family is doing up there.</p>
             </a>
             <a class="card" href="/airlines/">
-              <span class="tag">60 operators</span>
+              <span class="tag">${AIRLINE_COUNT} operators</span>
               <h3>Airline callsign codes</h3>
               <p>Three-letter ICAO prefixes, the spoken callsign air traffic control uses, and which regional carriers fly under which brand.</p>
             </a>
@@ -237,9 +304,9 @@ export const page = {
             window onto something that is already happening above your head, built for curiosity.
           </p>
           <div class="callout">
-            <h3>Built by one person</h3>
+            <h3>An independent project</h3>
             <p>
-              AeroPine is an independent project — no company behind it, no data resale, no tracking
+              AeroPine is an independent project run by the AeroPine team — no data resale, no tracking
               profiles. It costs money to run, which is why you will see advertising on the written pages.
               The live radar screens carry no advertising at all.
               <a href="/about/">More about the project and how it is built.</a>

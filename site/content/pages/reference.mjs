@@ -10,6 +10,13 @@ const ref = JSON.parse(
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+// Extra reading linked under specific aircraft families.
+const GROUP_LINKS = {
+  Helicopters: ' <a href="/guides/helicopter-over-my-house/">Why a helicopter might be over your house</a>, and <a href="/guides/why-some-aircraft-dont-appear/">why low helicopters often do not appear</a>.',
+  'Military and special mission': ' <a href="/guides/military-aircraft-overhead/">What military aircraft are doing overhead</a>, and <a href="/guides/why-some-aircraft-dont-appear/">why many never appear on a tracker</a>.',
+  'General aviation': ' <a href="/guides/plane-circling-over-my-house/">Why a small plane might be circling overhead</a>.',
+};
+
 // ── Aircraft ──────────────────────────────────────────────
 const aircraft = Object.entries(ref.aircraft);
 const groups = ref.groups
@@ -18,7 +25,7 @@ const groups = ref.groups
 
 export const aircraftPage = {
   path: '/aircraft/',
-  title: `Aircraft type codes: ${aircraft.length} ICAO designators decoded`,
+  title: `Aircraft Type Codes: ${aircraft.length} ICAO Designators Decoded`,
   description: `What B738, A20N, E75L and ${aircraft.length - 3} other ICAO aircraft type codes mean: the full model name for every type AeroPine can identify, grouped by family.`,
   ads: true,
   body: `
@@ -45,7 +52,7 @@ export const aircraftPage = {
               (g) => `
           <div class="group-block" id="${slug(g.name)}">
             <h2>${esc(g.name)}</h2>
-            <p>${esc(g.note)}</p>
+            <p>${esc(g.note)}${GROUP_LINKS[g.name] || ''}</p>
             <div class="table-scroll">
               <table class="ref">
                 <thead><tr><th scope="col">Code</th><th scope="col">Aircraft</th></tr></thead>
@@ -59,7 +66,8 @@ export const aircraftPage = {
             .join('')}
           <p style="color:var(--muted)">
             Not sure what you are looking at? <a href="/guides/identify-aircraft-overhead/">Identify a plane overhead by eye</a>,
-            or <a href="/">open the live radar</a> and let it tell you.
+            or <a href="/">open the live radar</a> and let it tell you. The <a href="/glossary/#type-designator">glossary</a>
+            explains type designators, and <a href="/airlines/">the airline code list</a> decodes the operator.
           </p>
         </div>
       </section>`,
@@ -70,7 +78,7 @@ const airlines = Object.entries(ref.airlines).sort(([a], [b]) => a.localeCompare
 
 export const airlinesPage = {
   path: '/airlines/',
-  title: `Airline callsign codes: ${airlines.length} ICAO prefixes and radio names`,
+  title: 'Airline Callsign Codes: ICAO Prefixes and Radio Names',
   description: `Decode the first three letters of a flight callsign: ${airlines.length} airline ICAO codes with the spoken radio callsign and the brand each regional carrier flies for.`,
   ads: true,
   body: `

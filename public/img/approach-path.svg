@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="880" height="320" role="img" aria-labelledby="t">
+  <title id="t">A three-degree final approach</title>
+  <rect width="880" height="320" fill="#0c1215"/>
+  <g font-family="Helvetica, Arial, sans-serif">
+    <line x1="30" y1="270" x2="850" y2="270" stroke="#dbe5e5" stroke-width="2"/>
+    <rect x="760" y="264" width="90" height="8" fill="#8fa0a0"/>
+    <text x="805" y="292" font-size="12" fill="#8fa0a0" text-anchor="middle">Runway</text>
+    <line x1="60" y1="70" x2="770" y2="268" stroke="#00ffcc" stroke-width="2.5" stroke-dasharray="10 6"/>
+    <g transform="translate(150 95) rotate(15.6)" fill="#00ffcc">
+      <path d="M-30 0 L26 -3 Q34 0 26 3 Z"/>
+      <path d="M-4 -2 L-14 -10 L2 -10 L10 -2 Z"/><path d="M-4 2 L-14 10 L2 10 L10 2 Z"/>
+      <path d="M-26 -1 L-33 -12 L-27 -12 L-19 -1 Z"/>
+    </g>
+    <g font-size="13" fill="#dbe5e5">
+      <line x1="130" y1="90" x2="130" y2="270" stroke="#8fa0a0" stroke-dasharray="3 5" opacity="0.6"/>
+      <text x="138" y="250" font-weight="700">10 NM</text><text x="138" y="232" fill="#8fa0a0">≈ 3,000 ft</text>
+      <line x1="450" y1="179" x2="450" y2="270" stroke="#8fa0a0" stroke-dasharray="3 5" opacity="0.6"/>
+      <text x="458" y="250" font-weight="700">5 NM</text><text x="458" y="232" fill="#8fa0a0">≈ 1,500 ft</text>
+      <line x1="706" y1="250" x2="706" y2="270" stroke="#8fa0a0" stroke-dasharray="3 5" opacity="0.6"/>
+      <text x="640" y="222" font-weight="700">1 NM</text><text x="640" y="238" fill="#8fa0a0">≈ 300 ft</text>
+    </g>
+    <text x="40" y="40" font-size="14" fill="#00ffcc" font-weight="700">3° glide path ≈ 300 ft of height per nautical mile</text>
+  </g>
+</svg>

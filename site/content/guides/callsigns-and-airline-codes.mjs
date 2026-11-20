@@ -4,12 +4,13 @@ export const meta = {
   path: '/guides/callsigns-and-airline-codes/',
   title: 'Callsigns and airline codes, explained',
   description:
-    'Why BAW means British Airways but the radio says "Speedbird", why the callsign is not your flight number, and how to decode the identity showing on a flight tracker.',
+    'Why BAW means British Airways but the radio says "Speedbird", why the callsign is not your flight number, and how to decode one on a flight tracker.',
   tag: 'Reference',
   cardTitle: 'Callsigns and airline codes explained',
   cardBlurb:
     'Why BAW is British Airways, why the radio says "Speedbird", and why the callsign rarely matches the ticket.',
-  updated: 'September 2026',
+  published: '2026-10-19',
+  updated: '2026-11-19',
   readingTime: 6,
 };
 
@@ -24,7 +25,7 @@ export const page = {
     updated: meta.updated,
     readingTime: meta.readingTime,
     related: [
-      { href: '/airlines/', label: 'Airline callsign code reference', note: 'Sixty ICAO prefixes and the spoken callsign for each.' },
+      { href: '/airlines/', label: 'Airline callsign code reference', note: 'Every ICAO prefix AeroPine recognises, with the spoken callsign for each.' },
       { href: '/guides/how-adsb-works/', label: 'How ADS-B works', note: 'How the callsign gets from the cockpit to your screen.' },
       { href: '/aircraft/', label: 'Aircraft type codes', note: 'The other code on the card, and what it means.' },
     ],

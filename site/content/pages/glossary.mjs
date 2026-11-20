@@ -1,7 +1,7 @@
 // Aviation vocabulary, defined for someone with no aviation background.
 // Each entry: [term, abbreviation-or-null, definition HTML].
-const TERMS = [
-  ['ADS-B', 'Automatic Dependent Surveillance–Broadcast', `A system in which an aircraft works out its own position, usually by GPS, and broadcasts it in the clear about once a second along with its identity, altitude and speed. Anyone with a suitable receiver can pick it up, which is where AeroPine's data comes from. <a href="/guides/how-adsb-works/">Full guide.</a>`],
+export const TERMS = [
+  ['ADS-B', 'Automatic Dependent Surveillance–Broadcast', `A system in which an aircraft works out its own position, usually by GPS, and broadcasts it in the clear about twice a second along with its identity, altitude and speed. Anyone with a suitable receiver can pick it up, which is where AeroPine's data comes from. <a href="/guides/how-adsb-works/">Full guide.</a>`],
   ['Aircraft registration', 'tail number', `The unique, painted-on identity of an individual airframe, like a car's licence plate: N-numbers in the US (N12345), G- in the UK, D- in Germany. It stays with the aircraft for years, unlike the callsign, which changes from flight to flight.`],
   ['Airspeed', null, `Speed relative to the air the aircraft is flying through. It is what keeps the wings flying, and it is different from ground speed whenever there is wind.`],
   ['Altitude', null, `Height above mean sea level. The altitude in an ADS-B report is normally barometric (see pressure altitude), so it can differ from true height by a few hundred feet. <a href="/guides/reading-altitude-speed-heading/">How to read it.</a>`],
@@ -13,11 +13,11 @@ const TERMS = [
   ['Contrail', null, `The white line behind a high-flying jet: water vapour in the exhaust freezing into ice crystals in very cold air. Contrails usually only form above roughly 26,000 feet.`],
   ['Cruise', null, `The long, level middle part of a flight, typically between 30,000 and 41,000 feet for airliners.`],
   ['Descent', null, `The phase in which an aircraft leaves cruise altitude and heads down towards its destination, often starting 100 miles or more from the airport.`],
-  ['Flight level', 'FL', `Altitude in hundreds of feet, measured against the standard pressure setting. FL350 means 35,000 feet on that standard. Above the transition altitude, every aircraft reports altitude this way so they are all measured against the same reference.`],
+  ['Flight level', 'FL', `Altitude in hundreds of feet, measured against the standard pressure setting. FL350 means 35,000 feet on that standard. Above the transition altitude every aircraft flies on this setting, so they are all measured against the same reference. (Transponders report altitude on this standard at every height.)`],
   ['General aviation', 'GA', `Everything that is not a scheduled airline or the military: private pilots, flight schools, business aircraft, aerial survey, crop spraying and so on.`],
   ['Ground speed', 'GS', `Speed relative to the ground, wind included. This is the speed ADS-B reports, which is why an airliner riding a jet stream can show well over 600 knots.`],
   ['Heading', null, `The direction the aircraft's nose is pointing, in degrees clockwise from north. Track, the direction it is actually moving over the ground, can differ slightly when there is a crosswind.`],
-  ['Hex code', 'ICAO 24-bit address', `A permanent six-character code, such as <code>A1B2C3</code>, wired into each aircraft's transponder and tied to its registration. It is how receivers tell one aircraft from another even when no callsign is being sent.`],
+  ['Hex code', 'ICAO 24-bit address', `A six-character code, such as <code>A1B2C3</code>, programmed into each aircraft's transponder and tied to its registration; it changes if the aircraft is re-registered. It is how receivers tell one aircraft from another even when no callsign is being sent.`],
   ['Holding pattern', null, `A racetrack-shaped loop flown while waiting for permission to continue, usually when an airport is busy. It explains many aircraft that seem to be circling.`],
   ['IATA code', null, `The two-letter airline codes (UA, BA) and three-letter airport codes (JFK, LHR) used on tickets and departure boards.`],
   ['ICAO code', null, `The codes used operationally by pilots and controllers: three letters for airlines (UAL, BAW), four letters for airports (KJFK, EGLL) and up to four characters for aircraft types (B738, A20N).`],
@@ -28,7 +28,7 @@ const TERMS = [
   ['Narrowbody', null, `A single-aisle airliner such as the Airbus A320 or Boeing 737. The workhorses of short and medium routes. <a href="/aircraft/">Type codes.</a>`],
   ['Operator', null, `The airline or company actually flying the aircraft. Regional airlines often operate flights under a bigger brand, such as Republic Airways flying as United Express. <a href="/airlines/">Airline codes.</a>`],
   ['Pressure altitude', 'barometric altitude', `Altitude worked out from air pressure, as an altimeter measures it, rather than from GPS. Because pressure changes with the weather, it can differ from true height above sea level by several hundred feet.`],
-  ['QNH', null, `The local air-pressure setting that makes an altimeter read height above sea level at that place and time. Below the transition altitude, pilots fly on QNH.`],
+  ['QNH', null, `The local air-pressure setting that makes an altimeter read height above sea level at that place and time. Below the transition altitude, pilots fly on QNH, which is why a tracker's altitude for a low aircraft can differ from what the pilot sees by a few hundred feet.`],
   ['Runway designator', null, `The number painted at each end of a runway: its magnetic heading divided by ten and rounded, so runway 22 points roughly 220 degrees. Parallel runways add L, C or R.`],
   ['Squawk', null, `The four-digit code a pilot sets in the transponder when ATC assigns one. A few codes are reserved for emergencies: 7500 (unlawful interference), 7600 (radio failure) and 7700 (general emergency).`],
   ['TCAS', 'Traffic Collision Avoidance System', `An onboard system that listens to nearby transponders and, if two aircraft are converging, tells both crews to climb or descend in opposite directions.`],
@@ -50,7 +50,7 @@ const letters = [...new Set(TERMS.map(([t]) => t[0].toUpperCase()))];
 
 export const page = {
   path: '/glossary/',
-  title: 'Aviation glossary: flight-tracking terms in plain English',
+  title: 'Aviation Glossary: Flight-Tracking Terms Explained',
   description: `${TERMS.length} flight-tracking terms defined without jargon: ADS-B, callsign, squawk, flight level, Mode S, hex code, transition altitude, TCAS and more.`,
   ads: true,
   body: `

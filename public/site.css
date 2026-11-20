@@ -277,9 +277,30 @@ ol.steps li b { color: var(--ink-strong); }
 .related li a { font-weight: 600; }
 .related li span { display: block; color: var(--muted); font-size: 0.88rem; }
 
+/* ── Breadcrumbs ────────────────────────────────────────── */
+.crumbs { padding-top: 26px; }
+.crumbs.narrow { max-width: var(--col); }
+.crumbs ol {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0;
+  font-size: 0.8rem; color: var(--muted);
+}
+.crumbs li + li::before { content: '›'; margin: 0 8px; color: var(--accent-dim); }
+.crumbs a { color: var(--muted); }
+.crumbs a:hover { color: var(--accent); }
+.crumbs + .prose { padding-top: 18px; }
+.crumbs + section.band { padding-top: 22px; }
+
+/* ── Figures & CTA ──────────────────────────────────────── */
+.prose figure { margin: 30px 0; }
+.prose figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--surface); }
+.prose figcaption { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); margin-top: 10px; line-height: 1.55; }
+.cta-line { margin: 34px 0 6px; }
+.sources { font-family: var(--sans); font-size: 0.88rem; color: var(--muted); }
+.sources li { font-family: var(--sans); font-size: 0.88rem; line-height: 1.6; margin-bottom: 6px; }
+
 /* ── Footer ─────────────────────────────────────────────── */
 .site-foot { border-top: 1px solid var(--line-soft); margin-top: 70px; padding: 52px 0 40px; background: #04070895; }
-.foot-grid { display: grid; gap: 30px; grid-template-columns: 1.6fr repeat(3, 1fr); }
+.foot-grid { display: grid; gap: 30px; grid-template-columns: 1.4fr repeat(4, 1fr); }
 .foot-grid h2 {
   font-family: var(--mono); font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase;
   color: var(--accent-dim); margin: 0 0 14px;
@@ -297,6 +318,7 @@ ol.steps li b { color: var(--ink-strong); }
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 900px) {
   .foot-grid { grid-template-columns: 1fr 1fr; }
+  .foot-grid > div:first-child { grid-column: 1 / -1; }
 }
 @media (max-width: 720px) {
   body { font-size: 16px; }
