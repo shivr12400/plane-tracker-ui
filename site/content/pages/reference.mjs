@@ -53,7 +53,7 @@ export const aircraftPage = {
           <div class="group-block" id="${slug(g.name)}">
             <h2>${esc(g.name)}</h2>
             <p>${esc(g.note)}${GROUP_LINKS[g.name] || ''}</p>
-            <div class="table-scroll">
+            <div class="table-scroll" tabindex="0" role="region" aria-label="${esc(g.name)} type codes">
               <table class="ref">
                 <thead><tr><th scope="col">Code</th><th scope="col">Aircraft</th></tr></thead>
                 <tbody>${g.rows
@@ -95,7 +95,7 @@ export const airlinesPage = {
           <p style="color:var(--muted);max-width:44rem;margin:0 0 28px">
             <a href="/guides/callsigns-and-airline-codes/">Read the callsign guide</a> for the full story.
           </p>
-          <div class="table-scroll">
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Airline callsign codes">
             <table class="ref">
               <caption>${airlines.length} operators, sorted by ICAO code</caption>
               <thead><tr><th scope="col">Code</th><th scope="col">Operator</th><th scope="col">Radio callsign</th><th scope="col">Flies as</th></tr></thead>

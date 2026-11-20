@@ -87,27 +87,32 @@ export const page = {
   body: `
       <section class="hero wrap">
         <div class="hero-copy">
-          <p class="kicker">Live local airspace</p>
           <h1>What is that plane <em>over your house</em>?</h1>
           <p class="lede">
             Share your location and AeroPine finds the closest aircraft in the sky above you, then tells you
             what it is, who is flying it, where it came from and how high it is — updated live, second by
             second, straight from the aircraft's own position broadcasts.
           </p>
+          <div class="radar-start" id="radar-start">
+            <a class="btn btn-primary" id="radar-start-btn" href="/radar/">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+              Allow location access
+            </a>
+            <p class="radar-note">Used only to find the aircraft nearest you. No account, no download.</p>
+          </div>
         </div>
-        <div class="radar-frame">
+        <div class="radar-frame" id="radar-frame" hidden tabindex="-1" aria-label="Live radar">
           <div id="root" data-mode="widget"></div>
         </div>
         <p class="hero-actions">
-          <a class="btn" href="/radar/">Open full screen</a>
-          <a class="btn btn-quiet" href="/guides/identify-aircraft-overhead/">Learn to identify it yourself</a>
-          <span>No account, no download. Location is used for the search and nothing else.</span>
+          <a href="/radar/">Open the full-screen radar</a>
+          <a href="/guides/identify-aircraft-overhead/">Learn to identify planes yourself</a>
         </p>
       </section>
 
       <section class="band">
         <div class="wrap prose" style="padding-top:0">
-          <h2>What the card above is actually telling you</h2>
+          <h2>What the radar card is telling you</h2>
           <p>
             Airliners, and most aircraft in busy airspace, continuously broadcast their own identity and
             position in the clear, about twice a second, on 1090&nbsp;MHz. That transmission is called

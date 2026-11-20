@@ -40,6 +40,9 @@ body {
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 22px; }
 
 a { color: var(--accent); text-decoration: none; }
+[hidden] { display: none !important; }
+::selection { background: rgba(0, 255, 204, 0.28); color: #fff; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .skip {
@@ -84,10 +87,28 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .hero h1 em { font-style: normal; color: var(--accent); }
 .hero p.lede { font-size: 1.12rem; color: var(--muted); margin: 0 0 26px; }
 
+/* Start control: the radar box stays hidden until this is tapped (see App.jsx). */
+.radar-start { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 0 0 6px; }
+.btn.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 54px; padding: 0 30px;
+  background: var(--accent); border-color: var(--accent); color: #00201a;
+  font-size: 0.88rem; letter-spacing: 1.2px;
+  box-shadow: 0 12px 32px -14px rgba(0, 255, 204, 0.6);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s;
+}
+.btn.btn-primary:hover { background: #6cffe4; color: #00201a; transform: translateY(-1px); box-shadow: 0 16px 36px -14px rgba(0, 255, 204, 0.75); }
+.btn.btn-primary:active { transform: translateY(0); box-shadow: 0 8px 22px -14px rgba(0, 255, 204, 0.6); }
+.btn-primary svg { flex-shrink: 0; }
+/* min-height holds two lines so the web-font swap cannot reflow the page below. */
+.radar-note { margin: 0; max-width: 27rem; min-height: 3em; font-size: 0.88rem; line-height: 1.5; color: var(--muted); }
+
 .radar-frame {
+  margin-top: 30px;
+  scroll-margin-top: 24px;
   position: relative;
-  height: min(74vh, 660px);
-  min-height: 460px;
+  height: min(90vh, 860px);
+  min-height: 600px;
   border: 1px solid var(--line);
   border-radius: 24px;
   overflow: hidden;
@@ -95,10 +116,20 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 .radar-frame #root { position: absolute; inset: 0; }
-.hero-actions {
-  display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
-  margin: 18px 0 0; font-size: 0.85rem; color: var(--muted);
+.radar-frame:focus { outline: none; }
+/* The live card can be taller than the box: scroll inside it, centred only when it fits. */
+.radar-frame .state-wrap { overflow-y: auto; align-items: safe center !important; padding: 20px 0; box-sizing: border-box; }
+.radar-frame.is-opening { animation: radarOpen 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes radarOpen {
+  from { opacity: 0; transform: translateY(10px); clip-path: inset(0 0 22% 0 round 24px); }
+  to { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round 24px); }
 }
+.hero-actions {
+  display: flex; flex-wrap: wrap; gap: 4px 26px; align-items: center;
+  margin: 22px 0 0; font-size: 0.9rem;
+}
+.hero-actions a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); }
+.hero-actions a:hover { color: var(--accent); }
 .btn {
   display: inline-block; padding: 11px 22px; border-radius: 999px;
   border: 1px solid var(--accent); color: var(--accent);
@@ -134,6 +165,7 @@ h3 {
   font-size: clamp(2rem, 4.6vw, 2.7rem); line-height: 1.12; letter-spacing: -1.2px;
   color: var(--ink-strong); margin: 0 0 14px; font-weight: 900;
 }
+.prose p.kicker { font-family: var(--mono); font-size: 0.68rem; line-height: 1.4; letter-spacing: 2.4px; margin: 0 0 12px; }
 .prose .standfirst {
   font-family: var(--serif); font-size: 1.2rem; line-height: 1.6;
   color: #b9c6c6; margin: 0 0 18px;
@@ -191,7 +223,14 @@ a.card:hover { border-color: var(--line); transform: translateY(-2px); text-deco
 }
 
 /* ── Reference tables ───────────────────────────────────── */
-.table-scroll { overflow-x: auto; margin: 0 0 28px; }
+.table-scroll {
+  overflow-x: auto; margin: 0 0 28px;
+  background:
+    linear-gradient(90deg, var(--bg) 30%, rgba(5, 8, 10, 0)) left center / 36px 100% no-repeat local,
+    linear-gradient(270deg, var(--bg) 30%, rgba(5, 8, 10, 0)) right center / 36px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgba(0, 255, 204, 0.22), rgba(0, 255, 204, 0)) left center / 14px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(0, 255, 204, 0.22), rgba(0, 255, 204, 0)) right center / 14px 100% no-repeat scroll;
+}
 table.ref {
   width: 100%; border-collapse: collapse; font-size: 0.92rem;
   border: 1px solid var(--line-soft); border-radius: 12px;
@@ -285,7 +324,7 @@ ol.steps li b { color: var(--ink-strong); }
   font-size: 0.8rem; color: var(--muted);
 }
 .crumbs li + li::before { content: '›'; margin: 0 8px; color: var(--accent-dim); }
-.crumbs a { color: var(--muted); }
+.crumbs a { color: var(--muted); display: inline-block; padding: 12px 0; margin: -12px 0; }
 .crumbs a:hover { color: var(--accent); }
 .crumbs + .prose { padding-top: 18px; }
 .crumbs + section.band { padding-top: 22px; }
@@ -305,7 +344,7 @@ ol.steps li b { color: var(--ink-strong); }
   font-family: var(--mono); font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase;
   color: var(--accent-dim); margin: 0 0 14px;
 }
-.foot-grid a { display: block; color: var(--muted); font-size: 0.88rem; margin-bottom: 9px; }
+.foot-grid a { display: block; color: var(--muted); font-size: 0.88rem; padding: 6px 0; margin-bottom: 3px; }
 .foot-grid a:hover { color: var(--accent); }
 .foot-brand { font-weight: 800; font-size: 1.1rem; color: var(--ink-strong); margin-bottom: 10px; }
 .foot-brand b { color: var(--accent); }
@@ -316,16 +355,33 @@ ol.steps li b { color: var(--ink-strong); }
 .foot-legal .copy { color: #55625f; }
 
 /* ── Responsive ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .radar-frame.is-opening { animation: none; }
+  .btn.btn-primary { transition: none; }
+}
 @media (max-width: 900px) {
   .foot-grid { grid-template-columns: 1fr 1fr; }
   .foot-grid > div:first-child { grid-column: 1 / -1; }
 }
 @media (max-width: 720px) {
   body { font-size: 16px; }
-  .head-inner { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; gap: 10px 18px; }
-  .site-nav { margin-left: 0; width: 100%; gap: 16px; overflow-x: auto; padding-bottom: 2px; }
-  .site-nav a { white-space: nowrap; }
-  .radar-frame { height: min(78vh, 620px); border-radius: 18px; }
+  .site-head { position: static; }
+  .head-inner { flex-wrap: wrap; padding-top: 8px; padding-bottom: 0; gap: 0 18px; min-height: 0; }
+  .brand { min-height: 44px; }
+  .site-nav {
+    margin: 0 -22px; padding: 0 22px; width: calc(100% + 44px);
+    flex-wrap: nowrap; gap: 20px; overflow-x: auto; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+  .site-nav::-webkit-scrollbar { display: none; }
+  .site-nav a { white-space: nowrap; display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
+  .hero { padding-top: 30px; }
+  .radar-start { flex-direction: column; align-items: stretch; gap: 12px; }
+  .btn.btn-primary { width: 100%; }
+  .radar-note { max-width: none; text-align: center; }
+  .radar-frame { height: min(80vh, 640px); min-height: 520px; border-radius: 18px; margin-top: 24px; }
+  .hero-actions { gap: 0 22px; }
   section.band { padding: 46px 0; }
   .foot-grid { grid-template-columns: 1fr; }
 }

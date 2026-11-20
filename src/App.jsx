@@ -1190,6 +1190,35 @@ export default function App() {
         }
     };
 
+    // ── Home-page widget: start from the page's own button ────
+    // On the home page the radar box stays hidden until the visitor taps the static
+    // "Allow location access" link in the hero (#radar-start-btn, which points at
+    // /radar/ so it still works without JavaScript). The tap reveals the box and asks
+    // for location in one step — the box never shows its own splash card.
+    const startRef = useRef(requestLocation);
+    startRef.current = requestLocation;
+    useEffect(() => {
+        if (!IS_WIDGET) return;
+        const btn = document.getElementById('radar-start-btn');
+        if (!btn) return;
+        const onClick = (e) => {
+            e.preventDefault();
+            const frame = document.getElementById('radar-frame');
+            document.getElementById('radar-start')?.setAttribute('hidden', '');
+            if (frame) {
+                frame.hidden = false;
+                frame.classList.add('is-opening');
+                frame.focus({ preventScroll: true });
+                const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                frame.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
+            }
+            window.dispatchEvent(new Event('resize'));   // the sky canvas measured a hidden box
+            startRef.current();
+        };
+        btn.addEventListener('click', onClick);
+        return () => btn.removeEventListener('click', onClick);
+    }, []);
+
     // ── WebSocket lifecycle ───────────────────────────────────
     // Opens as soon as the user taps, not when GPS resolves — the handshake and any
     // Lambda cold start overlap with the permission prompt instead of following it.
@@ -1525,8 +1554,36 @@ export default function App() {
 
             <div className="state-wrap" style={{ position: 'relative', zIndex: 10, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
-                {/* ── STATE 1: SPLASH / PERMISSION ── */}
-                {!userLocation ? (
+                {/* ── STATE 1a (home widget): waiting on the browser's location prompt ── */}
+                {IS_WIDGET && !userLocation ? (
+                    <div style={{
+                        textAlign: 'center',
+                        background: 'rgba(0,0,0,0.6)',
+                        padding: '28px 22px 26px',
+                        borderRadius: '30px',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        maxWidth: '420px',
+                        width: '94%',
+                        boxSizing: 'border-box',
+                        border: '1px solid rgba(0,255,204,0.14)',
+                    }}>
+                        <RadarScope />
+                        <h2 aria-live="polite" style={{
+                            color: '#00ffcc', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '2px',
+                            fontFamily: DISPLAY, margin: '18px 0 6px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                        }}>
+                            <span className="fr-live-dot" />
+                            WAITING FOR LOCATION
+                        </h2>
+                        <p style={{ color: INK_MUTED, fontSize: '0.875rem', lineHeight: 1.5, fontFamily: SANS, margin: 0 }}>
+                            Approve the location prompt in your browser and the scan starts straight away.
+                        </p>
+                    </div>
+
+                /* ── STATE 1: SPLASH / PERMISSION (full-screen /radar/) ── */
+                ) : !userLocation ? (
                     <div style={{
                         textAlign: 'center',
                         background: 'rgba(0,0,0,0.6)',
