@@ -191,6 +191,12 @@ export const page = {
           <code>B738</code>. Being wrong with a specific guess teaches you far more than being vaguely right,
           because you will remember exactly which cue misled you. Two weeks of that under a busy approach path
           is enough to make you genuinely good at it.
-        </p>`,
+        </p>
+
+        <h2>Sources and further reading</h2>
+        <ul class="sources">
+          <li><a href="https://www.icao.int/publications/DOC8643/Pages/Search.aspx" rel="noopener" target="_blank">ICAO Doc 8643 — Aircraft type designators</a></li>
+          <li><a href="https://www.faa.gov/regulations_policies/handbooks_manuals/aviation/airplane_handbook" rel="noopener" target="_blank">FAA Airplane Flying Handbook</a></li>
+        </ul>`,
   }),
 };

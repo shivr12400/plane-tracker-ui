@@ -10,8 +10,9 @@ export const meta = {
   cardBlurb:
     'Police, medical, news, utility and military helicopters, and why they often show no callsign.',
   published: '2026-11-19',
-  updated: '2026-11-19',
-  readingTime: 6,
+  updated: '2026-11-20',
+  readingTime: 8,
+  ogImage: '/img/og/helicopter-over-my-house.png',
 };
 
 export const page = {
@@ -31,6 +32,20 @@ export const page = {
       { href: '/guides/why-planes-fly-over-my-house/', label: 'Why planes fly over my house', note: 'Minimum heights, flight paths and who to contact about noise.' },
     ],
     sections: `
+        <div class="callout">
+          <h3>Should I worry? Three quick checks</h3>
+          <ol>
+            <li><strong>Is it hovering or orbiting one spot for a long time?</strong> That is almost always a
+              police, news or inspection crew looking at something nearby, not at you. Local news or the police
+              non-emergency line will usually explain it within the hour.</li>
+            <li><strong>Did it pass once, fast and direct?</strong> That is an air ambulance, a transit flight or
+              a military helicopter on a training route. Nothing to do.</li>
+            <li><strong>Is it dangerously low and nowhere near a hospital, airport or incident?</strong> Note the
+              time and anything the radar shows, and report it (see below). If you see an emergency on the
+              ground, call 911 as you normally would.</li>
+          </ol>
+        </div>
+
         <h2>What kinds of helicopter fly over homes?</h2>
         <p>
           Most helicopters you hear over a residential area fall into a handful of groups. The type, height and
@@ -45,7 +60,8 @@ export const page = {
           <li>
             <strong>Air ambulance.</strong> Medical helicopters fly fast and direct between an incident or a
             hospital and a trauma centre, often landing at hospital helipads. They rarely hover for long. In the
-            United States they may file with a "LIFEGUARD" priority designation.
+            United States an urgent medical flight adds <em>MEDEVAC</em> to its callsign for priority handling;
+            otherwise many fly under their operator's normal company callsign.
           </li>
           <li>
             <strong>News and traffic.</strong> TV helicopters orbit over incidents, sports events and congested
@@ -77,6 +93,47 @@ export const page = {
           twice to check a landing site before setting down. Steady orbits over the same point for twenty
           minutes or more, especially at night, are most often police.
         </p>
+
+        <h2>Why is a helicopter flying over my house at night?</h2>
+        <p>
+          Night is when police air support is busiest. Thermal cameras see body heat through darkness and
+          light foliage, so searches for missing people and suspects who have fled on foot happen after dark,
+          often in slow, tight circles at 500 to 1,500 feet for half an hour or more. A bright searchlight is
+          a strong sign of police. Air ambulances fly at night too, but pass through rather than orbit, and
+          military crews practise night-vision flying on scheduled training nights, often in pairs.
+        </p>
+
+        <h2>Military helicopters over my house</h2>
+        <p>
+          A deep, thumping helicopter with two rotors is almost always a CH-47 Chinook. A pair of similar
+          helicopters flying low and fast in formation is usually UH-60 Black Hawks. The tilt-rotor V-22
+          Osprey, which looks like an aeroplane with huge propellers, is common near Marine Corps and Air Force
+          bases. All of them train on low-level routes, practise landings at fields and training areas, and
+          move between bases, so homes within thirty or forty miles of an army post, National Guard aviation
+          unit or air base see them regularly.
+        </p>
+        <p>
+          Military helicopters often show on the radar with only a hex code and a military-looking callsign, or
+          not at all, because they are not required to broadcast in the same way on training flights. If one
+          does appear, the type code (<code>H60</code>, <code>H47</code>, <code>V22</code>) confirms it.
+          <a href="/guides/military-aircraft-overhead/">Our military guide</a> explains training routes and
+          why so much military traffic is invisible.
+        </p>
+
+        <h2>How do I find out why a helicopter is circling?</h2>
+        <ol class="steps">
+          <li><b>Open the radar while it is overhead.</b> A callsign, registration or type narrows it down
+            immediately: a registration belonging to a police department, hospital or TV station answers the
+            question on its own.</li>
+          <li><b>Look up the registration.</b> In the United States, the
+            <a href="https://registry.faa.gov/aircraftinquiry/" rel="noopener" target="_blank">FAA registry</a>
+            shows who owns any N-number.</li>
+          <li><b>Check local news and social feeds.</b> Police and news helicopters circle over something that
+            usually becomes a local story within an hour. Neighbourhood apps and community groups often know
+            sooner.</li>
+          <li><b>Call the non-emergency number</b> for your local police if a helicopter has been circling for
+            a long time and you want to know whether you should stay inside. Do not use 911 just to ask.</li>
+        </ol>
 
         <h2>Why does the radar show no callsign or route?</h2>
         <p>
@@ -137,6 +194,9 @@ export const page = {
           <li><a href="https://www.ecfr.gov/current/title-14/section-91.119" rel="noopener" target="_blank">14 CFR 91.119 — Minimum safe altitudes</a></li>
           <li><a href="https://www.faa.gov/air_traffic/technology/equipadsb/privacy" rel="noopener" target="_blank">FAA: ADS-B privacy (LADD and PIA)</a></li>
           <li><a href="https://registry.faa.gov/aircraftinquiry/" rel="noopener" target="_blank">FAA aircraft registry inquiry</a></li>
-        </ul>`,
+          <li><a href="https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap4_section_2.html" rel="noopener" target="_blank">FAA Aeronautical Information Manual 4-2: Radio communications, including MEDEVAC</a></li>
+        </ul>
+
+        <p class="byline">Corrected 20 November 2026: air ambulances use the MEDEVAC designation, which replaced Lifeguard in 2012.</p>`,
   }),
 };

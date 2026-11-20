@@ -10,7 +10,7 @@ export const meta = {
   cardBlurb:
     'Runway direction, wind, approach paths, how low aircraft may legally fly, and where noise complaints go.',
   published: '2026-11-19',
-  updated: '2026-11-19',
+  updated: '2026-11-20',
   readingTime: 7,
   ogImage: '/img/og/why-planes-fly-over-my-house.png',
 };
@@ -107,30 +107,42 @@ export const page = {
 
         <h2>How low are planes allowed to fly over my house?</h2>
         <p>
-          In the United States, the general rule is set out in
-          <a href="https://www.ecfr.gov/current/title-14/section-91.119" rel="noopener" target="_blank">14&nbsp;CFR&nbsp;91.119</a>:
+          In the United States, the rule is
+          <a href="https://www.ecfr.gov/current/title-14/section-91.119" rel="noopener" target="_blank">14&nbsp;CFR&nbsp;91.119</a>.
+          Outside take-off and landing, it sets three limits:
         </p>
         <ul>
           <li>
-            <strong>Over a congested area</strong> — a town, city or settlement — an aircraft must stay at least
-            1,000 feet above the highest obstacle within 2,000 feet of it.
+            <strong>Anywhere</strong>, an aircraft must be high enough that, if an engine fails, it can make an
+            emergency landing without undue hazard to people or property on the ground.
           </li>
           <li>
-            <strong>Elsewhere</strong>, it must stay at least 500 feet away from any person, vessel, vehicle or
-            structure, except over open water or sparsely populated areas.
+            <strong>Over a congested area</strong> (a town, city or settlement, or an open-air crowd), it must
+            stay at least 1,000 feet above the highest obstacle within 2,000 feet horizontally of the aircraft.
           </li>
           <li>
-            <strong>Taking off and landing are exempt.</strong> An aircraft on approach to a runway will
-            legitimately be far lower than these figures near the airport.
-          </li>
-          <li>
-            <strong>Helicopters</strong> may fly lower than these limits as long as they do so without hazard to
-            people or property on the ground.
+            <strong>Over other areas</strong>, it must stay at least 500 feet above the surface. Over open water
+            or sparsely populated areas the height limit relaxes, but the aircraft may still not come closer
+            than 500 feet to any person, vessel, vehicle or structure.
           </li>
         </ul>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Minimum heights at a glance">
+          <table class="ref">
+            <caption>Minimum heights at a glance (United States, 14 CFR 91.119)</caption>
+            <thead><tr><th scope="col">Where the aircraft is</th><th scope="col">Normally the minimum</th></tr></thead>
+            <tbody>
+              <tr><td>Over a town, city or crowd</td><td>1,000 ft above the highest obstacle within 2,000 ft</td></tr>
+              <tr><td>Over other land</td><td>500 ft above the surface</td></tr>
+              <tr><td>Over open water or sparsely populated land</td><td>No closer than 500 ft to any person, vessel, vehicle or structure</td></tr>
+              <tr><td>Taking off or landing</td><td>Exempt: as low as the approach or departure requires</td></tr>
+              <tr><td>Helicopter</td><td>May go lower if it creates no hazard to people or property</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p>
-          So an airliner at 1,500 feet over a suburb five miles from the runway is entirely normal. A light
-          aircraft circling at 400 feet over houses, nowhere near an airport, is not.
+          So an airliner at 1,500 feet over a suburb five miles from the runway is entirely normal: it is
+          landing, and landing is exempt. A light aircraft circling at 400 feet over houses, nowhere near an
+          airport, is not.
         </p>
 
         <h2>Who do I contact about aircraft noise?</h2>
@@ -162,6 +174,8 @@ export const page = {
           <li><a href="https://www.ecfr.gov/current/title-14/section-91.119" rel="noopener" target="_blank">14 CFR 91.119 — Minimum safe altitudes</a></li>
           <li><a href="https://www.faa.gov/noise" rel="noopener" target="_blank">FAA: Aircraft noise</a></li>
           <li><a href="https://supreme.justia.com/cases/federal/us/328/256/" rel="noopener" target="_blank">United States v. Causby, 328 U.S. 256 (1946)</a></li>
-        </ul>`,
+        </ul>
+
+        <p class="byline">Corrected 20 November 2026: the minimum-height rules now state 14 CFR 91.119(c) correctly (500 feet above the surface away from towns; the 500-foot distance rule applies over open water and sparsely populated areas) and include the general rule in 91.119(a).</p>`,
   }),
 };

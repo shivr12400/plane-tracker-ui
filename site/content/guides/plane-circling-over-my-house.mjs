@@ -10,8 +10,9 @@ export const meta = {
   cardBlurb:
     'Holding patterns, flight training, survey work and police aircraft, and how to tell them apart.',
   published: '2026-11-19',
-  updated: '2026-11-19',
+  updated: '2026-11-20',
   readingTime: 7,
+  ogImage: '/img/og/plane-circling-over-my-house.png',
 };
 
 export const page = {
@@ -45,6 +46,12 @@ export const page = {
           to see who owns the aircraft. A registration belonging to a survey company, a flight school, a news
           station or a police department usually answers the question on its own.
         </p>
+
+        <figure>
+          <img src="/img/circling-patterns.svg" width="880" height="320" loading="lazy"
+               alt="Three track shapes seen from above: a racetrack-shaped holding pattern flown around a fixed point by airliners at 5,000 to 15,000 feet, a tight circular orbit around one point of interest typical of police, news, photo and training flights, and a back-and-forth survey grid flown at a steady height for hours by mapping aircraft." />
+          <figcaption>The shape of the track on the radar map is the quickest clue: a racetrack is a hold, a tight circle is an orbit over one spot, and parallel lines are a survey.</figcaption>
+        </figure>
 
         <h2>Is it a holding pattern?</h2>
         <p>
@@ -122,6 +129,35 @@ export const page = {
           </li>
         </ul>
 
+        <h2>Real examples of circling aircraft</h2>
+        <ul>
+          <li>
+            <strong>Federal surveillance flights.</strong> In 2015 the Associated Press reported that the FBI
+            flew a fleet of small single-engine aircraft, registered to front companies, over US cities to
+            support investigations. Their signature was exactly what residents notice: a Cessna circling wide,
+            slow and steady at a few thousand feet for hours, with an unfamiliar owner name on the registration.
+          </li>
+          <li>
+            <strong>Civil Air Patrol searches.</strong> The
+            <a href="https://www.gocivilairpatrol.com/" rel="noopener" target="_blank">Civil Air Patrol</a>,
+            the US Air Force's volunteer auxiliary, flies light aircraft on search-and-rescue and disaster
+            missions. A search looks like a grid or an expanding square over one area, often at 1,000 to
+            2,000 feet.
+          </li>
+          <li>
+            <strong>Holding stacks near busy airports.</strong> On a stormy afternoon, published holds around
+            New York, Chicago or Atlanta can fill with a dozen airliners at once, each flying the same racetrack
+            1,000 feet above the next. If you live under a hold, a single weather delay can put several
+            aircraft over your street for half an hour.
+          </li>
+          <li>
+            <strong>Elevation mapping.</strong> The US Geological Survey's
+            <a href="https://www.usgs.gov/3d-elevation-program" rel="noopener" target="_blank">3D Elevation Program</a>
+            contracts aircraft to map the country with lidar. Those flights fly long, parallel lines at a fixed
+            height for hours, which from the ground looks like a plane that keeps coming back.
+          </li>
+        </ul>
+
         <h2>What if the circling aircraft is not on the radar?</h2>
         <p>
           Then it is probably a glider, a light aircraft using the 978&nbsp;MHz system in the United States, a
@@ -145,6 +181,8 @@ export const page = {
           <li><a href="https://registry.faa.gov/aircraftinquiry/" rel="noopener" target="_blank">FAA aircraft registry inquiry</a></li>
           <li><a href="https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap5_section_3.html" rel="noopener" target="_blank">FAA Aeronautical Information Manual 5-3: En route procedures, including holding</a></li>
           <li><a href="https://www.ecfr.gov/current/title-14/section-91.119" rel="noopener" target="_blank">14 CFR 91.119 — Minimum safe altitudes</a></li>
+          <li><a href="https://www.gocivilairpatrol.com/" rel="noopener" target="_blank">Civil Air Patrol</a></li>
+          <li><a href="https://www.usgs.gov/3d-elevation-program" rel="noopener" target="_blank">USGS 3D Elevation Program</a></li>
         </ul>`,
   }),
 };

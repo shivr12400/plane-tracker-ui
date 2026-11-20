@@ -12,6 +12,7 @@ export const meta = {
   published: '2026-10-19',
   updated: '2026-11-19',
   readingTime: 6,
+  ogImage: '/img/og/why-some-aircraft-dont-appear.png',
 };
 
 export const page = {
@@ -141,6 +142,14 @@ export const page = {
             general aviation, but it is not everything in the sky, and any site claiming otherwise is
             overselling. When the screen is empty and the sky is not, one of the seven reasons above is why.
           </p>
-        </div>`,
+        </div>
+
+        <h2>Sources and further reading</h2>
+        <ul class="sources">
+          <li><a href="https://www.ecfr.gov/current/title-14/section-91.225" rel="noopener" target="_blank">14 CFR 91.225 — ADS-B Out equipment and use</a></li>
+          <li><a href="https://eur-lex.europa.eu/eli/reg_impl/2011/1207/oj" rel="noopener" target="_blank">Commission Implementing Regulation (EU) No 1207/2011 — surveillance performance</a></li>
+          <li><a href="https://www.faa.gov/air_traffic/technology/equipadsb/privacy" rel="noopener" target="_blank">FAA: ADS-B privacy (LADD and PIA)</a></li>
+          <li><a href="https://www.faa.gov/air_traffic/technology/adsb" rel="noopener" target="_blank">FAA: ADS-B overview, including 1090ES and UAT</a></li>
+        </ul>`,
   }),
 };

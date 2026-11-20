@@ -12,6 +12,7 @@ export const meta = {
   published: '2026-10-19',
   updated: '2026-11-19',
   readingTime: 7,
+  ogImage: '/img/og/plane-spotting-near-an-airport.png',
 };
 
 export const page = {

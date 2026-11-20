@@ -10,7 +10,7 @@ export const meta = {
   cardBlurb:
     'The signal every airliner transmits about twice a second, who receives it, and why coverage is excellent over land and patchy over water.',
   published: '2026-10-19',
-  updated: '2026-11-19',
+  updated: '2026-11-20',
   ogImage: '/img/og/how-adsb-works.png',
   readingTime: 7,
 };
@@ -42,8 +42,8 @@ export const page = {
         </p>
         <p>
           That last word is the reason this website can exist. An aircraft passing over your street is
-          announcing, about twice a second, exactly who it is and exactly where it is, and it is not a
-          secret.
+          announcing exactly where it is about twice a second, and exactly who it is every few seconds, and it
+          is not a secret.
         </p>
         <figure>
           <img src="/img/adsb-signal-chain.svg" width="880" height="300" loading="lazy"
@@ -52,7 +52,7 @@ export const page = {
         </figure>
         <p>
           The exact rate depends on the message type: position and velocity reports go out roughly twice a
-          second each, identity a little less often, so a receiver in range builds a fresh picture of the
+          second each, the identity message (callsign and category) about every five seconds, so a receiver in range builds a fresh picture of the
           aircraft every second or so.
         </p>
 
@@ -219,6 +219,8 @@ export const page = {
           <li><a href="https://www.ecfr.gov/current/title-14/section-91.225" rel="noopener" target="_blank">14 CFR 91.225 — ADS-B Out equipment and use</a></li>
           <li><a href="https://eur-lex.europa.eu/eli/reg_impl/2011/1207/oj" rel="noopener" target="_blank">Commission Implementing Regulation (EU) 1207/2011</a></li>
           <li><a href="https://www.faa.gov/air_traffic/technology/equipadsb/privacy" rel="noopener" target="_blank">FAA: ADS-B privacy (LADD and PIA)</a></li>
-        </ul>`,
+        </ul>
+
+        <p class="byline">Corrected 20 November 2026: position is broadcast about twice a second, identity about every five seconds.</p>`,
   }),
 };

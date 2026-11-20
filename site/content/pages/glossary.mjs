@@ -1,7 +1,7 @@
 // Aviation vocabulary, defined for someone with no aviation background.
 // Each entry: [term, abbreviation-or-null, definition HTML].
 export const TERMS = [
-  ['ADS-B', 'Automatic Dependent Surveillance–Broadcast', `A system in which an aircraft works out its own position, usually by GPS, and broadcasts it in the clear about twice a second along with its identity, altitude and speed. Anyone with a suitable receiver can pick it up, which is where AeroPine's data comes from. <a href="/guides/how-adsb-works/">Full guide.</a>`],
+  ['ADS-B', 'Automatic Dependent Surveillance–Broadcast', `A system in which an aircraft works out its own position, usually by GPS, and broadcasts it in the clear about twice a second, together with its altitude and speed, plus its identity every few seconds. Anyone with a suitable receiver can pick it up, which is where AeroPine's data comes from. <a href="/guides/how-adsb-works/">Full guide.</a>`],
   ['Aircraft registration', 'tail number', `The unique, painted-on identity of an individual airframe, like a car's licence plate: N-numbers in the US (N12345), G- in the UK, D- in Germany. It stays with the aircraft for years, unlike the callsign, which changes from flight to flight.`],
   ['Airspeed', null, `Speed relative to the air the aircraft is flying through. It is what keeps the wings flying, and it is different from ground speed whenever there is wind.`],
   ['Altitude', null, `Height above mean sea level. The altitude in an ADS-B report is normally barometric (see pressure altitude), so it can differ from true height by a few hundred feet. <a href="/guides/reading-altitude-speed-heading/">How to read it.</a>`],

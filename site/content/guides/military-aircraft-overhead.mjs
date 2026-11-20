@@ -10,8 +10,9 @@ export const meta = {
   cardBlurb:
     'Training routes, flyovers, tankers and transports, and which military aircraft show up on a tracker.',
   published: '2026-11-19',
-  updated: '2026-11-19',
+  updated: '2026-11-20',
   readingTime: 6,
+  ogImage: '/img/og/military-aircraft-overhead.png',
 };
 
 export const page = {
@@ -58,6 +59,21 @@ export const page = {
             advance and normally announced locally.
           </li>
         </ul>
+
+        <h2>Is there a military flyover near me today?</h2>
+        <p>
+          Ceremonial flyovers are planned weeks ahead, so they are rarely a surprise to the venue. The usual
+          occasions are national holidays (Memorial Day, the Fourth of July, Veterans Day), the national anthem
+          at major football and baseball games, air shows, military funerals and memorial services, and change
+          of command ceremonies at bases. Formations of two to four aircraft pass once or twice at around
+          1,000 feet, timed to the second.
+        </p>
+        <p>
+          To find out in advance, check the event's own announcements, local news, and the public affairs
+          pages of nearby bases, which often post flyover schedules. On the day, a tight formation passing
+          low over a stadium or cemetery a few minutes before a ceremony starts is almost certainly the
+          flyover; tankers and transports at airliner height are not.
+        </p>
 
         <h2>Which military aircraft show up on a flight tracker?</h2>
         <p>

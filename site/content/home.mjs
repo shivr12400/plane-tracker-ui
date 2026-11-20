@@ -114,8 +114,8 @@ export const page = {
         <div class="wrap prose" style="padding-top:0">
           <h2>What the radar card is telling you</h2>
           <p>
-            Airliners, and most aircraft in busy airspace, continuously broadcast their own identity and
-            position in the clear, about twice a second, on 1090&nbsp;MHz. That transmission is called
+            Airliners, and most aircraft in busy airspace, continuously broadcast their own position in the
+            clear about twice a second on 1090&nbsp;MHz, along with their identity every few seconds. That transmission is called
             <a href="/guides/how-adsb-works/">ADS-B</a>, and anyone with an antenna can receive it. A
             worldwide network of volunteers does exactly that and pools the results, which is where
             AeroPine's data comes from. The position is not a prediction of where a plane ought to be — it
@@ -188,8 +188,8 @@ export const page = {
           <p class="kicker">Start here</p>
           <h2>Guides to reading the sky</h2>
           <p style="color:var(--muted);max-width:44rem;margin:0 0 28px">
-            Six things worth understanding if you want the sky above your street to stop being random
-            noise. Each one is written for someone with no aviation background.
+            Start with the six fundamentals below if you want the sky above your street to stop being random
+            noise, then use the four "over my house" guides further down for specific situations. Each one is written for someone with no aviation background.
           </p>
           <div class="grid grid-3">
             <a class="card" href="/guides/how-adsb-works/">

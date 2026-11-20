@@ -234,6 +234,8 @@ ${footer()}
 
 /** Article page scaffold: title block, prose, optional in-article ad. */
 export function article({ h1, standfirst, updated, readingTime, sections, related = [] }) {
+  // Reading time from the real word count (~230 wpm), so it never drifts from the text.
+  readingTime = Math.max(1, Math.round(`${standfirst} ${sections}`.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length / 230));
   // `updated` is an ISO date (YYYY-MM-DD) — the same value feeds JSON-LD and the sitemap.
   const relatedHtml = related.length
     ? `

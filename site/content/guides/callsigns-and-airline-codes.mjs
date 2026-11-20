@@ -10,8 +10,9 @@ export const meta = {
   cardBlurb:
     'Why BAW is British Airways, why the radio says "Speedbird", and why the callsign rarely matches the ticket.',
   published: '2026-10-19',
-  updated: '2026-11-19',
+  updated: '2026-11-20',
   readingTime: 6,
+  ogImage: '/img/og/callsigns-and-airline-codes.png',
 };
 
 export const page = {
@@ -119,9 +120,11 @@ export const page = {
             <em>NetJets</em> flights are "Execjet".
           </li>
           <li>
-            <strong>Emergency services.</strong> Air ambulance and police helicopters use dedicated callsigns
-            such as "Lifeguard", "Medevac" or a force-specific word. A flight with a medical callsign gets
-            priority handling from controllers.
+            <strong>Emergency services.</strong> Police helicopters usually fly under a force-specific callsign,
+            and many air ambulances use their operator's ordinary company callsign. In the United States an
+            urgent medical flight adds the word <em>MEDEVAC</em> to its callsign and flight plan (it replaced the
+            older "Lifeguard" in 2012), and only those urgent legs get priority handling from controllers, not
+            the positioning flights before and after.
           </li>
           <li>
             <strong>Military.</strong> Transport and tanker traffic often uses word-plus-number callsigns like
@@ -140,18 +143,21 @@ export const page = {
           </p>
         </div>
 
-        <h2>The hex code: the identity that never changes</h2>
+        <h2>The hex code: the airframe's usual identity</h2>
         <p>
           Alongside the callsign, every aircraft transmits a 24-bit ICAO address, shown as six hexadecimal
           characters like <code>A1B2C3</code>. Unlike the callsign, which changes flight by flight, this is
-          assigned to the <em>airframe</em> and stays with it for its whole life unless it changes country of
-          registration. It is what makes it possible to look up which specific aircraft you are looking at, and
+          tied to the aircraft's <em>registration</em>, so it normally stays with the same airframe for years.
+          It does change when the aircraft is re-registered: moving to another country, or in the United States
+          even switching to a new N-number, brings a new address. Some private aircraft also fly with a
+          temporary, randomised address under the FAA's privacy programme. Day to day, though, it is what makes it possible to look up which specific aircraft you are looking at, and
           therefore to find a photograph of that exact tail number rather than a stock image of the type.
         </p>
         <p>
           The address also encodes nationality: blocks are allocated by country, so an address starting with
-          <code>A</code> is United States registered, <code>4</code> is largely European, <code>7C</code> is
-          Australia. It is the closest thing aviation has to a permanent serial number visible from the ground.
+          <code>A</code> is United States registered, <code>3</code> and <code>4</code> are largely European,
+          <code>7C</code> is Australia. It is the closest thing aviation has to a serial number visible from the
+          ground.
         </p>
 
         <h2>Reading one all the way through</h2>
@@ -165,6 +171,8 @@ export const page = {
         </p>
         <p>
           That is six characters and a four-character type code, and it tells you nearly the whole story.
-        </p>`,
+        </p>
+
+        <p class="byline">Corrected 20 November 2026: the hex address is tied to the registration and changes on re-registration; European addresses start with 3 or 4; MEDEVAC replaced Lifeguard in 2012 and only urgent medical legs get priority.</p>`,
   }),
 };

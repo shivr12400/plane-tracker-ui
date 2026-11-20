@@ -94,6 +94,9 @@ const DISPLAY = "'Barlow Condensed', 'Barlow', system-ui, sans-serif";
 // see site/content/home.mjs). There it fills its frame instead of the viewport, and the
 // page's own H1 is the heading, so the splash title drops to a plain element.
 const IS_WIDGET = typeof document !== 'undefined' && document.getElementById('root')?.dataset.mode === 'widget';
+// The homepage widget mounts inside a hidden box; canvas loops idle until the visitor opens it,
+// so the page's main thread stays free for the static content (TBT / INP).
+const widgetIdle = () => IS_WIDGET && !!document.getElementById('radar-frame')?.hidden;
 
 const getAircraftName = (code) => {
     if (!code || code === 'UNK') return 'Private Aircraft';
@@ -425,6 +428,7 @@ function RadarScope({ size = 248, bearingRef }) {
         let raf, start = performance.now(), lastAngle = 0;
 
         const draw = (now) => {
+            if (widgetIdle()) { raf = requestAnimationFrame(draw); return; }
             // Bearing 0 = north (up), clockwise, like a real scope.
             const bearing = reduced ? 0.9 : (((now - start) % SWEEP_PERIOD_MS) / SWEEP_PERIOD_MS) * TAU;
             const canvasAngle = bearing - Math.PI / 2;
@@ -756,6 +760,7 @@ export default function App() {
 
         function draw(ts) {
             if (cancelled) return;
+            if (widgetIdle()) { lastTs = ts; animId = requestAnimationFrame(draw); return; }
             const dt = Math.min(ts - lastTs, 50); lastTs = ts;
             rotation += 0.00007 * dt;
             mx += (tmx - mx) * 0.035; my += (tmy - my) * 0.035;
